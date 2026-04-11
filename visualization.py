@@ -5,7 +5,7 @@ import matplotlib.animation as animation
 from config import LAYOUT_STANDARD, LAYOUT_CORRIDOR
 import os
 
-def animate_simulation(params, num_high=30, num_low=10, max_ticks=500, filename="evacuation.mp4"):
+def animate_simulation(params, num_high=30, num_low=30, max_ticks=500, filename="evacuation.mp4"):
 
     # Initialize model
     model = EvacuationModel(
