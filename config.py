@@ -2,7 +2,7 @@
 LAYOUT_STANDARD = {
     "room_size": (5.0, 5.0),
     "exit_pos": (5.0, 1.0),
-    "exit_width": 1.0 
+    "exit_width": 0.2 
 }
 
 # Layout 2: A wide, narrow hallway

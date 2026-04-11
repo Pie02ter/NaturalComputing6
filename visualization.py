@@ -6,7 +6,6 @@ from config import LAYOUT_STANDARD, LAYOUT_CORRIDOR
 import os
 
 def animate_simulation(params, num_high=30, num_low=10, max_ticks=500, filename="evacuation.mp4"):
-    print("Setting up animation...")
 
     # Initialize model
     model = EvacuationModel(
@@ -79,7 +78,7 @@ def animate_simulation(params, num_high=30, num_low=10, max_ticks=500, filename=
 if __name__ == "__main__":
     # Same test parameters as before:
     # [accel_factor, exit_threshold, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
-    test_params = [2.0, 1.0, 0.5, 2.0, 0.5, 1.0]
+    test_params = [2.0, 1.0, 2.0, 3.0, 0.5, 1.0]
     
     # Create an absolute path in your current folder
     save_path = os.path.abspath("test_evacuation.gif")
@@ -88,6 +87,6 @@ if __name__ == "__main__":
     animate_simulation(test_params, filename="test_evacuation.gif")
     # Verify if it actually created the file
     if os.path.exists(save_path):
-        print("SUCCESS: File exists on disk!")
+        print("SUCCESS")
     else:
         print("ERROR: Matplotlib finished, but the file was not created. Writer issue.")
