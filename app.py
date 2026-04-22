@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request, send_from_directory
 
-from config import DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
+from baselines import run_default_baseline, run_heuristic_baselines, run_random_search
+from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
+from ga import run_ga
 from simulator import run_simulation
 
 
@@ -18,6 +20,60 @@ def _layout_payload():
     }
 
 
+def _simulation_payload(payload):
+    layout_name = payload.get("layout", DEFAULT_SIMULATION_SETTINGS["layout"])
+    if layout_name not in LAYOUTS:
+        raise ValueError(f"Unknown layout '{layout_name}'")
+
+    params = payload.get("params", DEFAULT_PARAMS)
+    if len(params) != len(DEFAULT_PARAMS):
+        raise ValueError("Expected 6 movement parameters.")
+
+    return {
+        "layout_name": layout_name,
+        "params": [float(value) for value in params],
+        "num_high": int(payload.get("num_high", DEFAULT_SIMULATION_SETTINGS["num_high"])),
+        "num_low": int(payload.get("num_low", DEFAULT_SIMULATION_SETTINGS["num_low"])),
+        "max_ticks": int(payload.get("max_ticks", DEFAULT_SIMULATION_SETTINGS["max_ticks"])),
+        "dt": float(payload.get("dt", DEFAULT_SIMULATION_SETTINGS["dt"])),
+        "seed": int(payload.get("seed", DEFAULT_SIMULATION_SETTINGS["seed"])),
+        "frame_stride": max(1, int(payload.get("frame_stride", DEFAULT_SIMULATION_SETTINGS["frame_stride"]))),
+    }
+
+
+def _run_simulation_for_payload(payload):
+    simulation = _simulation_payload(payload)
+    layout = LAYOUTS[simulation["layout_name"]]
+    result = run_simulation(
+        params=simulation["params"],
+        num_high=simulation["num_high"],
+        num_low=simulation["num_low"],
+        room_size=layout["room_size"],
+        exit_pos=layout["exit_pos"],
+        max_ticks=simulation["max_ticks"],
+        dt=simulation["dt"],
+        seed=simulation["seed"],
+        frame_stride=simulation["frame_stride"],
+    )
+    result["layout"] = simulation["layout_name"]
+    result["exit_width"] = layout["exit_width"]
+    return result
+
+
+def _summary_payload(evaluation):
+    return {
+        "method": evaluation["method"],
+        "fitness": evaluation["fitness"],
+        "params": evaluation["params"],
+        "total_time": evaluation["total_time"],
+        "near_collisions": evaluation["near_collisions"],
+        "mean_congestion": evaluation["mean_congestion"],
+        "fairness_gap_time": evaluation["fairness_gap_time"],
+        "all_evacuated": evaluation["all_evacuated"],
+        "remaining_agents": evaluation["remaining_agents"],
+    }
+
+
 @app.get("/")
 def index():
     return send_from_directory(app.static_folder, "index.html")
@@ -32,6 +88,8 @@ def get_config():
             "param_bounds": PARAM_BOUNDS,
             "default_params": DEFAULT_PARAMS,
             "defaults": DEFAULT_SIMULATION_SETTINGS,
+            "default_evaluation_seeds": DEFAULT_EVALUATION_SEEDS,
+            "ga_defaults": GA_DEFAULTS,
         }
     )
 
@@ -39,30 +97,145 @@ def get_config():
 @app.post("/api/simulate")
 def simulate():
     payload = request.get_json(silent=True) or {}
+    try:
+        return jsonify(_run_simulation_for_payload(payload))
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
 
-    layout_name = payload.get("layout", DEFAULT_SIMULATION_SETTINGS["layout"])
-    if layout_name not in LAYOUTS:
-        return jsonify({"error": f"Unknown layout '{layout_name}'"}), 400
 
-    params = payload.get("params", DEFAULT_PARAMS)
-    if len(params) != len(DEFAULT_PARAMS):
-        return jsonify({"error": "Expected 6 movement parameters."}), 400
+@app.post("/api/optimize/ga")
+def optimize_ga():
+    payload = request.get_json(silent=True) or {}
 
-    layout = LAYOUTS[layout_name]
-    result = run_simulation(
-        params=[float(value) for value in params],
-        num_high=int(payload.get("num_high", DEFAULT_SIMULATION_SETTINGS["num_high"])),
-        num_low=int(payload.get("num_low", DEFAULT_SIMULATION_SETTINGS["num_low"])),
-        room_size=layout["room_size"],
-        exit_pos=layout["exit_pos"],
-        max_ticks=int(payload.get("max_ticks", DEFAULT_SIMULATION_SETTINGS["max_ticks"])),
-        dt=float(payload.get("dt", DEFAULT_SIMULATION_SETTINGS["dt"])),
-        seed=int(payload.get("seed", DEFAULT_SIMULATION_SETTINGS["seed"])),
-        frame_stride=max(1, int(payload.get("frame_stride", DEFAULT_SIMULATION_SETTINGS["frame_stride"]))),
+    try:
+        simulation = _simulation_payload(payload)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    seeds = payload.get("evaluation_seeds", DEFAULT_EVALUATION_SEEDS)
+    seeds = [int(seed) for seed in seeds]
+    ga_result = run_ga(
+        seeds=seeds,
+        layout_name=simulation["layout_name"],
+        sim_settings={
+            "layout": simulation["layout_name"],
+            "num_high": simulation["num_high"],
+            "num_low": simulation["num_low"],
+            "max_ticks": simulation["max_ticks"],
+            "dt": simulation["dt"],
+            "frame_stride": simulation["frame_stride"],
+        },
+        population_size=int(payload.get("population_size", GA_DEFAULTS["population_size"])),
+        generations=int(payload.get("generations", GA_DEFAULTS["generations"])),
+        elite_count=int(payload.get("elite_count", GA_DEFAULTS["elite_count"])),
+        tournament_size=int(payload.get("tournament_size", GA_DEFAULTS["tournament_size"])),
+        crossover_probability=float(payload.get("crossover_probability", GA_DEFAULTS["crossover_probability"])),
+        mutation_probability=float(payload.get("mutation_probability", GA_DEFAULTS["mutation_probability"])),
+        mutation_sigma_scale=float(payload.get("mutation_sigma_scale", GA_DEFAULTS["mutation_sigma_scale"])),
+        rng_seed=int(payload.get("rng_seed", 123)),
     )
-    result["layout"] = layout_name
-    result["exit_width"] = layout["exit_width"]
-    return jsonify(result)
+
+    visualization_seed = int(payload.get("visualization_seed", simulation["seed"]))
+    replay_payload = dict(payload)
+    replay_payload["params"] = ga_result["best"]["params"]
+    replay_payload["seed"] = visualization_seed
+    best_simulation = _run_simulation_for_payload(replay_payload)
+
+    return jsonify(
+        {
+            "history": ga_result["history"],
+            "best": ga_result["best"],
+            "ga_settings": ga_result["ga_settings"],
+            "evaluation_seeds": seeds,
+            "visualization_seed": visualization_seed,
+            "best_simulation": best_simulation,
+        }
+    )
+
+
+@app.post("/api/compare")
+def compare_methods():
+    payload = request.get_json(silent=True) or {}
+
+    try:
+        simulation = _simulation_payload(payload)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    seeds = [int(seed) for seed in payload.get("evaluation_seeds", DEFAULT_EVALUATION_SEEDS)]
+    ga_population_size = int(payload.get("population_size", GA_DEFAULTS["population_size"]))
+    ga_generations = int(payload.get("generations", GA_DEFAULTS["generations"]))
+    random_candidates = int(payload.get("random_candidates", ga_population_size * ga_generations))
+    sim_settings = {
+        "layout": simulation["layout_name"],
+        "num_high": simulation["num_high"],
+        "num_low": simulation["num_low"],
+        "max_ticks": simulation["max_ticks"],
+        "dt": simulation["dt"],
+        "frame_stride": simulation["frame_stride"],
+    }
+
+    cache = {}
+    default_result = run_default_baseline(
+        seeds=seeds,
+        layout_name=simulation["layout_name"],
+        sim_settings=sim_settings,
+        cache=cache,
+    )
+    heuristic_results = run_heuristic_baselines(
+        seeds=seeds,
+        layout_name=simulation["layout_name"],
+        sim_settings=sim_settings,
+        cache=cache,
+    )
+    random_result = run_random_search(
+        num_candidates=random_candidates,
+        seeds=seeds,
+        layout_name=simulation["layout_name"],
+        sim_settings=sim_settings,
+        rng_seed=int(payload.get("random_rng_seed", 321)),
+        cache=cache,
+    )
+    ga_result = run_ga(
+        seeds=seeds,
+        layout_name=simulation["layout_name"],
+        sim_settings=sim_settings,
+        population_size=ga_population_size,
+        generations=ga_generations,
+        elite_count=int(payload.get("elite_count", GA_DEFAULTS["elite_count"])),
+        tournament_size=int(payload.get("tournament_size", GA_DEFAULTS["tournament_size"])),
+        crossover_probability=float(payload.get("crossover_probability", GA_DEFAULTS["crossover_probability"])),
+        mutation_probability=float(payload.get("mutation_probability", GA_DEFAULTS["mutation_probability"])),
+        mutation_sigma_scale=float(payload.get("mutation_sigma_scale", GA_DEFAULTS["mutation_sigma_scale"])),
+        rng_seed=int(payload.get("rng_seed", 123)),
+    )
+
+    visualization_seed = int(payload.get("visualization_seed", simulation["seed"]))
+    default_replay_payload = dict(payload)
+    default_replay_payload["params"] = default_result["params"]
+    default_replay_payload["seed"] = visualization_seed
+    default_simulation = _run_simulation_for_payload(default_replay_payload)
+
+    ga_replay_payload = dict(payload)
+    ga_replay_payload["params"] = ga_result["best"]["params"]
+    ga_replay_payload["seed"] = visualization_seed
+    ga_best_simulation = _run_simulation_for_payload(ga_replay_payload)
+
+    chart_methods = [_summary_payload(default_result)]
+    chart_methods.extend(_summary_payload(result) for result in heuristic_results)
+    chart_methods.append(_summary_payload(random_result["best"]))
+    chart_methods.append(_summary_payload(ga_result["best"]))
+
+    return jsonify(
+        {
+            "methods": chart_methods,
+            "default_simulation": default_simulation,
+            "ga_best_simulation": ga_best_simulation,
+            "ga_history": ga_result["history"],
+            "evaluation_seeds": seeds,
+            "visualization_seed": visualization_seed,
+        }
+    )
 
 
 if __name__ == "__main__":

@@ -129,6 +129,7 @@ def run_simulation(
     frame_stride=4,
     near_collision_distance=0.35,
     congestion_radius=1.5,
+    capture_frames=True,
 ):
     rng = np.random.default_rng(seed)
     model = EvacuationModel(
@@ -140,7 +141,7 @@ def run_simulation(
     )
 
     evacuation_ticks = np.full(model.num_agents, np.nan)
-    frames = [model.snapshot(0)]
+    frames = [model.snapshot(0)] if capture_frames else []
     ticks = 0
     near_collision_total = 0
     congestion_total = 0
@@ -159,7 +160,7 @@ def run_simulation(
         congestion_total += current_congestion
         congestion_peak = max(congestion_peak, current_congestion)
 
-        if ticks % frame_stride == 0 or not np.any(model.active) or ticks == max_ticks:
+        if capture_frames and (ticks % frame_stride == 0 or not np.any(model.active) or ticks == max_ticks):
             frames.append(model.snapshot(ticks))
 
     high_mask = model.types == 1

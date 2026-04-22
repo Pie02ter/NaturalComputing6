@@ -46,6 +46,23 @@ DEFAULT_SIMULATION_SETTINGS = {
     "seed": 42,
 }
 
+DEFAULT_EVALUATION_SEEDS = [11, 29, 47]
+
+GA_DEFAULTS = {
+    "population_size": 24,
+    "generations": 25,
+    "elite_count": 2,
+    "tournament_size": 3,
+    "crossover_probability": 0.9,
+    "mutation_probability": 0.2,
+    "mutation_sigma_scale": 0.1,
+}
+
+HEURISTIC_PARAM_SETS = {
+    "heuristic_1": [1.8, 0.9, 1.2, 2.2, 0.7, 1.0],
+    "heuristic_2": [2.4, 1.1, 0.9, 1.6, 0.9, 1.2],
+}
+
 # Default GA bounds for the parameters:
 # [accel_factor, exit_threshold, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
 PARAM_BOUNDS = [

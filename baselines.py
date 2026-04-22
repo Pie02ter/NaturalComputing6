@@ -1,0 +1,72 @@
+import numpy as np
+
+from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, HEURISTIC_PARAM_SETS, PARAM_BOUNDS
+from ga import evaluate_candidate
+
+
+def run_default_baseline(seeds=None, layout_name=None, sim_settings=None, log_path=None, cache=None):
+    return evaluate_candidate(
+        params=DEFAULT_PARAMS,
+        seeds=DEFAULT_EVALUATION_SEEDS if seeds is None else seeds,
+        layout_name=layout_name or DEFAULT_SIMULATION_SETTINGS["layout"],
+        sim_settings=sim_settings,
+        method="default",
+        generation=0,
+        individual_id=0,
+        log_path=log_path,
+        cache=cache,
+    )
+
+
+def run_heuristic_baselines(seeds=None, layout_name=None, sim_settings=None, log_path=None, cache=None):
+    seeds = DEFAULT_EVALUATION_SEEDS if seeds is None else seeds
+    layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
+    results = []
+    for index, (name, params) in enumerate(HEURISTIC_PARAM_SETS.items()):
+        result = evaluate_candidate(
+            params=params,
+            seeds=seeds,
+            layout_name=layout_name,
+            sim_settings=sim_settings,
+            method=name,
+            generation=0,
+            individual_id=index,
+            log_path=log_path,
+            cache=cache,
+        )
+        results.append(result)
+    return results
+
+
+def run_random_search(num_candidates, seeds=None, layout_name=None, sim_settings=None, rng_seed=321, log_path=None, cache=None):
+    seeds = DEFAULT_EVALUATION_SEEDS if seeds is None else seeds
+    layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
+    rng = np.random.default_rng(rng_seed)
+
+    best = None
+    evaluations = []
+    for candidate_id in range(num_candidates):
+        params = [rng.uniform(low, high) for low, high in PARAM_BOUNDS]
+        evaluation = evaluate_candidate(
+            params=params,
+            seeds=seeds,
+            layout_name=layout_name,
+            sim_settings=sim_settings,
+            method="random",
+            generation=0,
+            individual_id=candidate_id,
+            log_path=log_path,
+            cache=cache,
+        )
+        evaluations.append(evaluation)
+        if best is None or evaluation["fitness"] < best["fitness"]:
+            best = evaluation
+
+    return {
+        "method": "random",
+        "best": best,
+        "evaluations": evaluations,
+        "num_candidates": num_candidates,
+        "rng_seed": rng_seed,
+        "seeds": list(seeds),
+    }
