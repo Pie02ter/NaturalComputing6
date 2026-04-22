@@ -3,177 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evacuation Simulator</title>
+  <title>Evacuation Lab</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/common.js" defer></script>
 </head>
 <body>
-  <main class="layout">
-    <section class="panel controls">
-      <h1>Evacuation Simulator</h1>
-      <p class="muted">Simple local browser UI for testing layouts and movement parameters.</p>
+  <header class="topbar">
+    <a class="brand" href="/">Evacuation Lab</a>
+    <nav class="nav-links">
+      <a data-nav href="/manual">Evacuation Simulator</a>
+      <a data-nav href="/ga">GA Simulator</a>
+      <a data-nav href="/comparison">Comparison</a>
+      <a data-nav href="/experiments">Experiments</a>
+    </nav>
+  </header>
 
-      <div class="grid two-columns">
-        <label>
-          Layout
-          <select id="layout"></select>
-        </label>
-        <label>
-          Seed
-          <input id="seed" type="number" min="0" step="1">
-        </label>
-        <label>
-          High mobility
-          <input id="num-high" type="number" min="0" step="1">
-        </label>
-        <label>
-          Low mobility
-          <input id="num-low" type="number" min="0" step="1">
-        </label>
-        <label>
-          Max ticks
-          <input id="max-ticks" type="number" min="1" step="1">
-        </label>
-        <label>
-          Dt
-          <input id="dt" type="number" min="0.01" step="0.01">
-        </label>
-      </div>
-
-      <div id="params" class="params"></div>
-
-      <div class="actions">
-        <button id="run-button">Run simulation</button>
-        <button id="replay-button" type="button">Replay</button>
-      </div>
-
-      <section class="ga-section">
-        <h2>Genetic Algorithm</h2>
-        <div class="grid two-columns">
-          <label>
-            Population size
-            <input id="ga-population-size" type="number" min="2" step="1">
-          </label>
-          <label>
-            Generations
-            <input id="ga-generations" type="number" min="1" step="1">
-          </label>
-          <label>
-            Elite count
-            <input id="ga-elite-count" type="number" min="1" step="1">
-          </label>
-          <label>
-            Tournament size
-            <input id="ga-tournament-size" type="number" min="2" step="1">
-          </label>
-          <label>
-            Crossover probability
-            <input id="ga-crossover-probability" type="number" min="0" max="1" step="0.05">
-          </label>
-          <label>
-            Mutation probability
-            <input id="ga-mutation-probability" type="number" min="0" max="1" step="0.05">
-          </label>
-          <label>
-            Mutation sigma scale
-            <input id="ga-mutation-sigma-scale" type="number" min="0.01" step="0.01">
-          </label>
-          <label>
-            GA RNG seed
-            <input id="ga-rng-seed" type="number" min="0" step="1" value="123">
-          </label>
-          <label class="wide-field">
-            Evaluation seeds
-            <input id="ga-evaluation-seeds" type="text" placeholder="11,29,47">
-          </label>
-        </div>
-
-        <div class="actions">
-          <button id="run-ga-button" type="button">Run GA</button>
-          <button id="run-compare-button" type="button">Compare methods</button>
-          <button id="play-generation-button" type="button">Replay selected generation</button>
-        </div>
-
-        <div class="grid two-columns top-gap">
-          <label>
-            Generation to replay
-            <input id="ga-generation-index" type="number" min="0" step="1" value="0">
-          </label>
-          <div class="summary-card">
-            <strong>GA best fitness:</strong> <span id="ga-best-fitness">-</span><br>
-            <strong>Selected generation:</strong> <span id="ga-selected-generation">-</span>
-          </div>
-        </div>
-      </section>
-
-      <p id="status" class="status">Loading configuration...</p>
+  <main class="page-shell">
+    <section class="hero panel">
+      <h1>Evacuation Optimization Playground</h1>
+      <p class="muted">Explore the crowd simulator, evolve movement rules with a GA, compare baselines, and run experiment presets from separate focused pages.</p>
     </section>
 
-    <section class="panel viewer">
-      <canvas id="sim-canvas" width="720" height="480"></canvas>
-      <div class="metrics">
-        <div><strong>Ticks:</strong> <span id="metric-ticks">-</span></div>
-        <div><strong>Total time:</strong> <span id="metric-time">-</span></div>
-        <div><strong>Evacuated:</strong> <span id="metric-evacuated">-</span></div>
-        <div><strong>Remaining:</strong> <span id="metric-remaining">-</span></div>
-        <div><strong>Near collisions:</strong> <span id="metric-collisions">-</span></div>
-        <div><strong>Mean congestion:</strong> <span id="metric-congestion">-</span></div>
-        <div><strong>High group time:</strong> <span id="metric-high">-</span></div>
-        <div><strong>Low group time:</strong> <span id="metric-low">-</span></div>
-        <div><strong>Fairness gap:</strong> <span id="metric-gap">-</span></div>
-      </div>
-
-      <section class="ga-visualization">
-        <div class="ga-header">
-          <h2>GA Progress</h2>
-          <p id="ga-summary" class="muted">Run the GA to see convergence and replay champions.</p>
-        </div>
-        <canvas id="ga-progress-canvas" width="720" height="220"></canvas>
-      </section>
-
-      <section class="ga-visualization">
-        <div class="ga-header">
-          <h2>Method Comparison</h2>
-          <p id="comparison-summary" class="muted">Run a comparison to see default, heuristics, random search, and GA side by side.</p>
-        </div>
-        <canvas id="comparison-canvas" width="720" height="240"></canvas>
-      </section>
-
-      <section class="comparison-layout">
-        <div class="compare-card">
-          <h2>Default Replay</h2>
-          <canvas id="default-canvas" width="340" height="240"></canvas>
-        </div>
-        <div class="compare-card">
-          <h2>GA Best Replay</h2>
-          <canvas id="ga-best-canvas" width="340" height="240"></canvas>
-        </div>
-      </section>
-
-      <section class="ga-visualization">
-        <div class="ga-header">
-          <h2>Generation Table</h2>
-          <p class="muted">Best champion from each generation.</p>
-        </div>
-        <div class="table-wrap">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Generation</th>
-                <th>Best fitness</th>
-                <th>Params</th>
-              </tr>
-            </thead>
-            <tbody id="ga-history-body">
-              <tr>
-                <td colspan="3">Run the GA to populate this table.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+    <section class="card-grid">
+      <a class="feature-card panel" href="/manual">
+        <h2>Evacuation Simulator</h2>
+        <p>Manual parameter tuning with a replayable browser simulation and core evacuation metrics.</p>
+      </a>
+      <a class="feature-card panel" href="/ga">
+        <h2>GA Simulator</h2>
+        <p>Run the genetic algorithm, tune GA hyperparameters and fitness weights, then replay champions by generation.</p>
+      </a>
+      <a class="feature-card panel" href="/comparison">
+        <h2>Comparison</h2>
+        <p>Compare default, heuristics, random search, and GA with charts plus side-by-side replay.</p>
+      </a>
+      <a class="feature-card panel" href="/experiments">
+        <h2>Experiments</h2>
+        <p>Start from preset scenarios, edit them, and run standard or generalization experiments for the report.</p>
+      </a>
     </section>
   </main>
-
-  <script src="/static/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evacuation Simulator</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/common.js" defer></script>
+  <script src="/static/manual.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Evacuation Lab</a>
+    <nav class="nav-links">
+      <a data-nav href="/manual">Evacuation Simulator</a>
+      <a data-nav href="/ga">GA Simulator</a>
+      <a data-nav href="/comparison">Comparison</a>
+      <a data-nav href="/experiments">Experiments</a>
+    </nav>
+  </header>
+
+  <main class="page-shell two-column-shell">
+    <section class="panel controls-panel">
+      <h1>Evacuation Simulator</h1>
+      <p class="muted">Tune the six local movement parameters directly and replay the resulting evacuation.</p>
+
+      <section class="form-section">
+        <h2>Scenario</h2>
+        <div class="form-grid two-columns">
+          <label>Layout<select id="layout"></select></label>
+          <label>Seed<input id="seed" type="number" min="0" step="1"></label>
+          <label>High mobility<input id="num-high" type="number" min="0" step="1"></label>
+          <label>Low mobility<input id="num-low" type="number" min="0" step="1"></label>
+          <label>Max ticks<input id="max-ticks" type="number" min="1" step="1"></label>
+          <label>Dt<input id="dt" type="number" min="0.01" step="0.01"></label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>Movement Parameters</h2>
+        <div id="params" class="stacked-controls"></div>
+      </section>
+
+      <div class="actions">
+        <button id="run-button" type="button">Run simulation</button>
+        <button id="replay-button" type="button" class="secondary-button">Replay</button>
+      </div>
+
+      <p id="status" class="status">Loading configuration...</p>
+    </section>
+
+    <section class="panel viewer-panel">
+      <canvas id="sim-canvas" width="760" height="500"></canvas>
+      <div class="metrics three-columns">
+        <div><strong>Ticks:</strong> <span id="metric-ticks">-</span></div>
+        <div><strong>Total time:</strong> <span id="metric-time">-</span></div>
+        <div><strong>Evacuated:</strong> <span id="metric-evacuated">-</span></div>
+        <div><strong>Remaining:</strong> <span id="metric-remaining">-</span></div>
+        <div><strong>Near collisions:</strong> <span id="metric-collisions">-</span></div>
+        <div><strong>Mean congestion:</strong> <span id="metric-congestion">-</span></div>
+        <div><strong>High group time:</strong> <span id="metric-high">-</span></div>
+        <div><strong>Low group time:</strong> <span id="metric-low">-</span></div>
+        <div><strong>Fairness gap:</strong> <span id="metric-gap">-</span></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

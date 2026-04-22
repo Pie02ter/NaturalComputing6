@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request, send_from_directory
 
 from baselines import run_default_baseline, run_heuristic_baselines, run_random_search
-from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
+from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_FITNESS_WEIGHTS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, EXPERIMENT_PRESETS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
+from experiments import run_generalization_suite, run_standard_comparison
 from ga import run_ga
 from simulator import run_simulation
 
@@ -17,6 +18,33 @@ def _layout_payload():
             "exit_width": layout["exit_width"],
         }
         for name, layout in LAYOUTS.items()
+    }
+
+
+def _preset_payload():
+    return EXPERIMENT_PRESETS
+
+
+def _fitness_weights_payload(payload):
+    weights = dict(DEFAULT_FITNESS_WEIGHTS)
+    raw_weights = payload.get("fitness_weights", {})
+    for key, default_value in DEFAULT_FITNESS_WEIGHTS.items():
+        if key in raw_weights:
+            weights[key] = float(raw_weights[key])
+        else:
+            weights[key] = float(default_value)
+    return weights
+
+
+def _sim_settings_from_simulation(simulation):
+    return {
+        "layout": simulation["layout_name"],
+        "num_high": simulation["num_high"],
+        "num_low": simulation["num_low"],
+        "max_ticks": simulation["max_ticks"],
+        "dt": simulation["dt"],
+        "frame_stride": simulation["frame_stride"],
+        "seed": simulation["seed"],
     }
 
 
@@ -79,6 +107,26 @@ def index():
     return send_from_directory(app.static_folder, "index.html")
 
 
+@app.get("/manual")
+def manual_page():
+    return send_from_directory(app.static_folder, "manual.html")
+
+
+@app.get("/ga")
+def ga_page():
+    return send_from_directory(app.static_folder, "ga.html")
+
+
+@app.get("/comparison")
+def comparison_page():
+    return send_from_directory(app.static_folder, "comparison.html")
+
+
+@app.get("/experiments")
+def experiments_page():
+    return send_from_directory(app.static_folder, "experiments.html")
+
+
 @app.get("/api/config")
 def get_config():
     return jsonify(
@@ -89,7 +137,9 @@ def get_config():
             "default_params": DEFAULT_PARAMS,
             "defaults": DEFAULT_SIMULATION_SETTINGS,
             "default_evaluation_seeds": DEFAULT_EVALUATION_SEEDS,
+            "default_fitness_weights": DEFAULT_FITNESS_WEIGHTS,
             "ga_defaults": GA_DEFAULTS,
+            "experiment_presets": _preset_payload(),
         }
     )
 
@@ -114,17 +164,11 @@ def optimize_ga():
 
     seeds = payload.get("evaluation_seeds", DEFAULT_EVALUATION_SEEDS)
     seeds = [int(seed) for seed in seeds]
+    fitness_weights = _fitness_weights_payload(payload)
     ga_result = run_ga(
         seeds=seeds,
         layout_name=simulation["layout_name"],
-        sim_settings={
-            "layout": simulation["layout_name"],
-            "num_high": simulation["num_high"],
-            "num_low": simulation["num_low"],
-            "max_ticks": simulation["max_ticks"],
-            "dt": simulation["dt"],
-            "frame_stride": simulation["frame_stride"],
-        },
+        sim_settings=_sim_settings_from_simulation(simulation),
         population_size=int(payload.get("population_size", GA_DEFAULTS["population_size"])),
         generations=int(payload.get("generations", GA_DEFAULTS["generations"])),
         elite_count=int(payload.get("elite_count", GA_DEFAULTS["elite_count"])),
@@ -133,6 +177,7 @@ def optimize_ga():
         mutation_probability=float(payload.get("mutation_probability", GA_DEFAULTS["mutation_probability"])),
         mutation_sigma_scale=float(payload.get("mutation_sigma_scale", GA_DEFAULTS["mutation_sigma_scale"])),
         rng_seed=int(payload.get("rng_seed", 123)),
+        fitness_weights=fitness_weights,
     )
 
     visualization_seed = int(payload.get("visualization_seed", simulation["seed"]))
@@ -146,6 +191,7 @@ def optimize_ga():
             "history": ga_result["history"],
             "best": ga_result["best"],
             "ga_settings": ga_result["ga_settings"],
+            "fitness_weights": fitness_weights,
             "evaluation_seeds": seeds,
             "visualization_seed": visualization_seed,
             "best_simulation": best_simulation,
@@ -163,17 +209,11 @@ def compare_methods():
         return jsonify({"error": str(exc)}), 400
 
     seeds = [int(seed) for seed in payload.get("evaluation_seeds", DEFAULT_EVALUATION_SEEDS)]
+    fitness_weights = _fitness_weights_payload(payload)
     ga_population_size = int(payload.get("population_size", GA_DEFAULTS["population_size"]))
     ga_generations = int(payload.get("generations", GA_DEFAULTS["generations"]))
     random_candidates = int(payload.get("random_candidates", ga_population_size * ga_generations))
-    sim_settings = {
-        "layout": simulation["layout_name"],
-        "num_high": simulation["num_high"],
-        "num_low": simulation["num_low"],
-        "max_ticks": simulation["max_ticks"],
-        "dt": simulation["dt"],
-        "frame_stride": simulation["frame_stride"],
-    }
+    sim_settings = _sim_settings_from_simulation(simulation)
 
     cache = {}
     default_result = run_default_baseline(
@@ -181,12 +221,14 @@ def compare_methods():
         layout_name=simulation["layout_name"],
         sim_settings=sim_settings,
         cache=cache,
+        fitness_weights=fitness_weights,
     )
     heuristic_results = run_heuristic_baselines(
         seeds=seeds,
         layout_name=simulation["layout_name"],
         sim_settings=sim_settings,
         cache=cache,
+        fitness_weights=fitness_weights,
     )
     random_result = run_random_search(
         num_candidates=random_candidates,
@@ -195,6 +237,7 @@ def compare_methods():
         sim_settings=sim_settings,
         rng_seed=int(payload.get("random_rng_seed", 321)),
         cache=cache,
+        fitness_weights=fitness_weights,
     )
     ga_result = run_ga(
         seeds=seeds,
@@ -208,6 +251,7 @@ def compare_methods():
         mutation_probability=float(payload.get("mutation_probability", GA_DEFAULTS["mutation_probability"])),
         mutation_sigma_scale=float(payload.get("mutation_sigma_scale", GA_DEFAULTS["mutation_sigma_scale"])),
         rng_seed=int(payload.get("rng_seed", 123)),
+        fitness_weights=fitness_weights,
     )
 
     visualization_seed = int(payload.get("visualization_seed", simulation["seed"]))
@@ -232,10 +276,76 @@ def compare_methods():
             "default_simulation": default_simulation,
             "ga_best_simulation": ga_best_simulation,
             "ga_history": ga_result["history"],
+            "fitness_weights": fitness_weights,
             "evaluation_seeds": seeds,
             "visualization_seed": visualization_seed,
         }
     )
+
+
+@app.post("/api/experiments/run")
+def run_experiment_api():
+    payload = request.get_json(silent=True) or {}
+    preset_name = payload.get("preset")
+    suite = payload.get("suite", "standard")
+
+    if preset_name:
+        if preset_name not in EXPERIMENT_PRESETS:
+            return jsonify({"error": f"Unknown experiment preset '{preset_name}'"}), 400
+        preset = EXPERIMENT_PRESETS[preset_name]
+        suite = payload.get("suite", preset["suite"])
+        settings = dict(preset["settings"])
+        settings.update(payload.get("settings", {}))
+        seeds = [int(seed) for seed in payload.get("evaluation_seeds", preset["evaluation_seeds"])]
+        fitness_weights = _fitness_weights_payload({"fitness_weights": payload.get("fitness_weights", preset["fitness_weights"])})
+        ga_settings = dict(preset["ga_settings"])
+        ga_settings.update(payload.get("ga_settings", {}))
+        random_candidates = int(payload.get("random_candidates", preset["random_candidates"]))
+    else:
+        settings = DEFAULT_SIMULATION_SETTINGS.copy()
+        settings.update(payload.get("settings", {}))
+        seeds = [int(seed) for seed in payload.get("evaluation_seeds", DEFAULT_EVALUATION_SEEDS)]
+        fitness_weights = _fitness_weights_payload(payload)
+        ga_settings = dict(GA_DEFAULTS)
+        ga_settings.update(payload.get("ga_settings", {}))
+        random_candidates = int(payload.get("random_candidates", ga_settings["population_size"] * ga_settings["generations"]))
+
+    standard_results = run_standard_comparison(
+        seeds=seeds,
+        sim_settings=settings,
+        random_search_candidates=random_candidates,
+        ga_generations=int(ga_settings["generations"]),
+        ga_population_size=int(ga_settings["population_size"]),
+        fitness_weights=fitness_weights,
+        write_outputs=False,
+        ga_settings=ga_settings,
+    )
+
+    response = {
+        "suite": suite,
+        "preset": preset_name,
+        "settings": settings,
+        "evaluation_seeds": seeds,
+        "fitness_weights": fitness_weights,
+        "standard": {
+            "default": _summary_payload(standard_results["default"]),
+            "heuristics": [_summary_payload(result) for result in standard_results["heuristics"]],
+            "random": _summary_payload(standard_results["random"]["best"]),
+            "ga": _summary_payload(standard_results["ga"]["best"]),
+            "ga_history": standard_results["ga"]["history"],
+        },
+    }
+
+    if suite == "generalization":
+        generalization = run_generalization_suite(
+            standard_results,
+            seeds=seeds,
+            fitness_weights=fitness_weights,
+            write_outputs=False,
+        )
+        response["generalization"] = generalization["generalization"]
+
+    return jsonify(response)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
-from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS
+from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_FITNESS_WEIGHTS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS
 from simulator import run_simulation
 
 
@@ -27,24 +27,35 @@ RESULT_COLUMNS = [
     "num_low",
     "seed_list",
     "params",
+    "fitness_weights",
     "per_seed_fitnesses",
     "per_seed_total_times",
 ]
 
 
-def compute_fitness(result):
+def normalize_fitness_weights(fitness_weights=None):
+    weights = dict(DEFAULT_FITNESS_WEIGHTS)
+    if fitness_weights:
+        for key, value in fitness_weights.items():
+            if key in weights:
+                weights[key] = float(value)
+    return weights
+
+
+def compute_fitness(result, fitness_weights=None):
+    weights = normalize_fitness_weights(fitness_weights)
     fairness_gap_time = result["fairness_gap_time"]
     if fairness_gap_time is None:
         fairness_gap_time = result["total_time"]
 
     fitness = (
-        result["total_time"]
-        + 0.05 * result["near_collisions"]
-        + 1.0 * result["mean_congestion"]
-        + 2.0 * fairness_gap_time
+        weights["time"] * result["total_time"]
+        + weights["collisions"] * result["near_collisions"]
+        + weights["congestion"] * result["mean_congestion"]
+        + weights["fairness"] * fairness_gap_time
     )
     if not result["all_evacuated"]:
-        fitness += 1000 + 10 * result["remaining_agents"]
+        fitness += weights["incomplete_base"] + weights["incomplete_agent"] * result["remaining_agents"]
     return float(fitness)
 
 
@@ -55,7 +66,7 @@ def _scenario_settings(sim_settings=None):
     return settings
 
 
-def _cache_key(params, seeds, layout_name, settings):
+def _cache_key(params, seeds, layout_name, settings, fitness_weights):
     rounded_params = tuple(round(float(value), 6) for value in params)
     relevant_settings = (
         int(settings["num_high"]),
@@ -63,10 +74,11 @@ def _cache_key(params, seeds, layout_name, settings):
         int(settings["max_ticks"]),
         round(float(settings["dt"]), 6),
     )
-    return (rounded_params, tuple(int(seed) for seed in seeds), layout_name, relevant_settings)
+    rounded_weights = tuple((key, round(float(value), 6)) for key, value in sorted(fitness_weights.items()))
+    return (rounded_params, tuple(int(seed) for seed in seeds), layout_name, relevant_settings, rounded_weights)
 
 
-def _aggregate_results(params, seeds, layout_name, settings, per_seed_results):
+def _aggregate_results(params, seeds, layout_name, settings, per_seed_results, fitness_weights):
     metrics = {
         "total_time": float(np.mean([item["total_time"] for item in per_seed_results])),
         "near_collisions": float(np.mean([item["near_collisions"] for item in per_seed_results])),
@@ -90,10 +102,11 @@ def _aggregate_results(params, seeds, layout_name, settings, per_seed_results):
         "num_high": int(settings["num_high"]),
         "num_low": int(settings["num_low"]),
         "seed_list": [int(seed) for seed in seeds],
+        "fitness_weights": dict(fitness_weights),
         "per_seed_results": per_seed_results,
     }
     aggregate.update(metrics)
-    aggregate["fitness"] = compute_fitness(aggregate)
+    aggregate["fitness"] = compute_fitness(aggregate, fitness_weights)
     return aggregate
 
 
@@ -132,6 +145,7 @@ def evaluation_to_log_row(evaluation):
         "num_low": evaluation["num_low"],
         "seed_list": json.dumps(evaluation["seed_list"]),
         "params": json.dumps(evaluation["params"]),
+        "fitness_weights": json.dumps(evaluation["fitness_weights"]),
         "per_seed_fitnesses": json.dumps([item["fitness"] for item in evaluation["per_seed_results"]]),
         "per_seed_total_times": json.dumps([item["total_time"] for item in evaluation["per_seed_results"]]),
     }
@@ -147,15 +161,17 @@ def evaluate_candidate(
     individual_id=None,
     log_path=None,
     cache=None,
+    fitness_weights=None,
 ):
     seeds = DEFAULT_EVALUATION_SEEDS if seeds is None else list(seeds)
     layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
     settings = _scenario_settings(sim_settings)
+    weights = normalize_fitness_weights(fitness_weights)
 
     if layout_name not in LAYOUTS:
         raise ValueError(f"Unknown layout '{layout_name}'")
 
-    cache_key = _cache_key(params, seeds, layout_name, settings)
+    cache_key = _cache_key(params, seeds, layout_name, settings, weights)
     if cache is not None and cache_key in cache:
         cached = dict(cache[cache_key])
         cached["method"] = method
@@ -179,10 +195,10 @@ def evaluate_candidate(
             frame_stride=settings.get("frame_stride", DEFAULT_SIMULATION_SETTINGS["frame_stride"]),
             capture_frames=False,
         )
-        result["fitness"] = compute_fitness(result)
+        result["fitness"] = compute_fitness(result, weights)
         per_seed_results.append(result)
 
-    aggregate = _aggregate_results(params, seeds, layout_name, settings, per_seed_results)
+    aggregate = _aggregate_results(params, seeds, layout_name, settings, per_seed_results, weights)
     aggregate["method"] = method
     aggregate["generation"] = generation
     aggregate["individual_id"] = individual_id
@@ -241,6 +257,7 @@ def run_ga(
     mutation_sigma_scale=None,
     rng_seed=123,
     log_path=None,
+    fitness_weights=None,
 ):
     seeds = DEFAULT_EVALUATION_SEEDS if seeds is None else list(seeds)
     layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
@@ -251,6 +268,7 @@ def run_ga(
     crossover_probability = crossover_probability or GA_DEFAULTS["crossover_probability"]
     mutation_probability = mutation_probability or GA_DEFAULTS["mutation_probability"]
     mutation_sigma_scale = mutation_sigma_scale or GA_DEFAULTS["mutation_sigma_scale"]
+    weights = normalize_fitness_weights(fitness_weights)
 
     rng = np.random.default_rng(rng_seed)
     cache = {}
@@ -273,6 +291,7 @@ def run_ga(
                 individual_id=individual_id,
                 log_path=log_path,
                 cache=cache,
+                fitness_weights=weights,
             )
             evaluations.append(evaluation)
             fitnesses.append(evaluation["fitness"])
@@ -315,6 +334,7 @@ def run_ga(
         "seeds": seeds,
         "layout": layout_name,
         "sim_settings": _scenario_settings(sim_settings),
+        "fitness_weights": weights,
         "ga_settings": {
             "population_size": population_size,
             "generations": generations,

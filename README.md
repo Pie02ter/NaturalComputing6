@@ -1,6 +1,6 @@
 # NaturalComputing6
 
-Simple heterogeneous crowd evacuation prototype with a local browser UI.
+Simple heterogeneous crowd evacuation prototype with a local browser UI, GA optimization, method comparison, and experiment presets.
 
 ## Run the browser simulation
 
@@ -9,15 +9,22 @@ Simple heterogeneous crowd evacuation prototype with a local browser UI.
 2. Open:
    `http://127.0.0.1:5000`
 
-The browser UI now supports both:
+The browser UI is now split into focused pages:
 
-- manual simulation runs with sliders
-- GA runs with in-browser convergence visualization
-- replay of the best evolved simulation
-- replay of any selected generation champion
-- method comparison charts for default, heuristics, random search, and GA
-- side-by-side replay of default versus GA best
-- per-generation GA champion table
+- `/manual` for the evacuation simulator and the 6 movement parameters
+- `/ga` for GA runs, GA hyperparameters, and editable fitness weights
+- `/comparison` for baseline comparison, charts, and side-by-side replay
+- `/experiments` for preset-driven standard and generalization experiments
+
+The root page `/` acts as a navigation hub.
+
+## Browser Features
+
+- manual simulation with replay and evacuation metrics
+- editable fitness weights for time, collisions, congestion, fairness, and incomplete evacuation penalties
+- GA convergence visualization and generation replay
+- baseline comparison across default, two heuristics, random search, and GA
+- experiment presets that can be loaded and then modified before running
 
 ## Run the terminal smoke test
 
@@ -27,8 +34,10 @@ The browser UI now supports both:
 
 - Python simulation backend
 - Flask local server
-- Plain HTML/JS browser controls
+- Multi-page HTML/JS browser controls
 - Canvas-based replay of a simulation run
+- Configurable fitness weighting
+- Baseline and GA experiment runner
 - Basic metrics for evacuation time, near-collisions, congestion, and group fairness
 
 ## Run optimization experiments
