@@ -1,37 +1,33 @@
-import numpy as np
 import time
-from simulator import EvacuationModel
+from config import DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, LAYOUTS
+from simulator import run_simulation
 
 def test_simulation():
-    print("Initializing EvacuationModel...")
-    # Setup: 30 high-mobility and 10 low-mobility agents
-    model = EvacuationModel(num_high=30, num_low=10, room_size=(20.0, 20.0), exit_pos=(10.0, 20.0))
-    
-    # Define test parameters matching the step() unpack order:
-    # [accel_factor, exit_threshold, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
-    test_params = [2.0, 1.0, 0.5, 2.0, 0.5, 1.0]
-    
-    max_ticks = 5000
-    ticks = 0
-    
-    print("Starting simulation loop...")
+    print("Initializing run_simulation...")
+    layout = LAYOUTS[DEFAULT_SIMULATION_SETTINGS["layout"]]
     start_time = time.time()
-    
-    # Run until all agents are inactive OR we hit the safety limit
-    while np.any(model.active) and ticks < max_ticks:
-        model.step(test_params, dt=0.1)
-        ticks += 1
-        
+
+    result = run_simulation(
+        params=DEFAULT_PARAMS,
+        num_high=DEFAULT_SIMULATION_SETTINGS["num_high"],
+        num_low=DEFAULT_SIMULATION_SETTINGS["num_low"],
+        room_size=layout["room_size"],
+        exit_pos=layout["exit_pos"],
+        max_ticks=5000,
+        dt=DEFAULT_SIMULATION_SETTINGS["dt"],
+        seed=DEFAULT_SIMULATION_SETTINGS["seed"],
+    )
+
     compute_time = time.time() - start_time
-    
-    # Output results
+
     print("-" * 30)
-    if ticks >= max_ticks:
-        print(f"WARNING: Simulation reached max_ticks ({max_ticks}). Agents are likely stuck.")
+    if not result["all_evacuated"]:
+        print("WARNING: Simulation reached max_ticks. Agents are likely stuck.")
     else:
-        print(f"SUCCESS: All agents evacuated in {ticks} ticks.")
-        
-    print(f"Agents remaining: {np.sum(model.active)}")
+        print(f"SUCCESS: All agents evacuated in {result['ticks']} ticks.")
+
+    print(f"Agents remaining: {result['remaining_agents']}")
+    print(f"Near collisions: {result['near_collisions']}")
     print(f"Computation time: {compute_time:.4f} seconds")
     print("-" * 30)
 

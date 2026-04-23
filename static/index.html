@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evacuation Lab</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/common.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Evacuation Lab</a>
+    <nav class="nav-links">
+      <a data-nav href="/manual">Evacuation Simulator</a>
+      <a data-nav href="/ga">GA Simulator</a>
+      <a data-nav href="/comparison">Comparison</a>
+      <a data-nav href="/experiments">Experiments</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero panel">
+      <h1>Evacuation Optimization Playground</h1>
+      <p class="muted">Explore the crowd simulator, evolve movement rules with a GA, compare baselines, and run experiment presets from separate focused pages.</p>
+    </section>
+
+    <section class="card-grid">
+      <a class="feature-card panel" href="/manual">
+        <h2>Evacuation Simulator</h2>
+        <p>Manual parameter tuning with a replayable browser simulation and core evacuation metrics.</p>
+      </a>
+      <a class="feature-card panel" href="/ga">
+        <h2>GA Simulator</h2>
+        <p>Run the genetic algorithm, tune GA hyperparameters and fitness weights, then replay champions by generation.</p>
+      </a>
+      <a class="feature-card panel" href="/comparison">
+        <h2>Comparison</h2>
+        <p>Compare default, heuristics, random search, and GA with charts plus side-by-side replay.</p>
+      </a>
+      <a class="feature-card panel" href="/experiments">
+        <h2>Experiments</h2>
+        <p>Start from preset scenarios, edit them, and run standard or generalization experiments for the report.</p>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
