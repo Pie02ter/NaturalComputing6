@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint Experiment</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/common.js" defer></script>
+  <script src="/static/checkpoint_page.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Evacuation Lab</a>
+    <nav class="nav-links">
+      <a data-nav href="/manual">Evacuation Simulator</a>
+      <a data-nav href="/ga">GA Simulator</a>
+      <a data-nav href="/comparison">Comparison</a>
+      <a data-nav href="/experiments">Experiments</a>
+      <a data-nav href="/checkpoint">Checkpoint</a>
+    </nav>
+  </header>
+
+  <main class="page-shell checkpoint-shell">
+    <section class="hero panel">
+      <h1>Formal Checkpoint Experiment</h1>
+      <p class="muted">Run the fixed default, random search, GA without fairness, and GA with fairness using the shared checkpoint evaluator and seeds.</p>
+      <div class="actions">
+        <button id="run-checkpoint-button" type="button">Run checkpoint experiment</button>
+      </div>
+      <p id="checkpoint-status" class="status">Ready. This runs the full checkpoint settings and may take a moment.</p>
+    </section>
+
+    <section class="panel checkpoint-grid">
+      <div>
+        <h2>Exact Settings</h2>
+        <div id="settings-box" class="summary-card">
+          <strong>Scenario:</strong> standard layout, fixed door width 0.6, 30 high-mobility agents, 10 low-mobility agents, max_ticks 500, dt 0.1.<br>
+          <strong>Seeds:</strong> [0, 1, 2].<br>
+          <strong>Search:</strong> random search 50 samples, GA population 15, GA generations 15.
+        </div>
+      </div>
+      <div>
+        <h2>Checkpoint Objective</h2>
+        <div class="summary-card">
+          <code>fitness = total_time + 0.05 * mean_congestion + 0.001 * near_collisions + fairness_weight * fairness_gap_time + 10.0 * remaining_agents</code>
+          <p class="muted">Fairness is <code>G = abs(mean_low_time - mean_high_time)</code>. Lower fitness is better.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-header">
+        <h2>Method Summary</h2>
+        <p class="muted">The displayed fitness is recomputed with fairness_weight = 1.0 for common comparison.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Fitness</th>
+              <th>Total time</th>
+              <th>Fairness gap</th>
+              <th>Mean congestion</th>
+              <th>Near collisions</th>
+              <th>Remaining</th>
+              <th>All evacuated</th>
+              <th>Best params</th>
+            </tr>
+          </thead>
+          <tbody id="checkpoint-summary-body">
+            <tr><td colspan="9">Run the checkpoint experiment to populate this table.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Report Analysis</h2>
+      <div id="checkpoint-insights" class="insight-grid">
+        <div class="summary-card">Run the checkpoint experiment to generate report-ready observations.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Generated Plots</h2>
+      <div id="checkpoint-plots" class="plot-grid">
+        <div class="summary-card">Plots will appear here after the run and are also saved in <code>results/checkpoint/</code>.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-header">
+        <h2>Visual Comparison GIFs</h2>
+        <p class="muted">Replays each saved best parameter set on the same visualization seed for qualitative comparison.</p>
+      </div>
+      <div class="actions">
+        <button id="generate-animations-button" class="secondary-button" type="button">Generate GIFs</button>
+      </div>
+      <div id="checkpoint-animations" class="plot-grid top-gap">
+        <div class="summary-card">Run the checkpoint experiment first, then generate GIFs from the saved best parameters.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Generated Notes</h2>
+      <pre id="checkpoint-notes" class="notes-box">Run the checkpoint experiment to generate checkpoint_notes.md and preview it here.</pre>
+    </section>
+  </main>
+</body>
+</html>

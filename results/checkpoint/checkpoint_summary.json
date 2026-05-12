@@ -1,0 +1,830 @@
+{
+  "settings": {
+    "layout": "standard",
+    "num_high": 30,
+    "num_low": 10,
+    "max_ticks": 500,
+    "dt": 0.1,
+    "frame_stride": 4
+  },
+  "layout_definition": {
+    "room_size": [
+      5.0,
+      5.0
+    ],
+    "exit_pos": [
+      5.0,
+      1.0
+    ],
+    "exit_width": 0.6
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "param_names": [
+    "accel_factor",
+    "agent_rep_weight",
+    "agent_radius",
+    "wall_rep_weight",
+    "wall_radius"
+  ],
+  "param_bounds": [
+    [
+      0.1,
+      5.0
+    ],
+    [
+      0.1,
+      5.0
+    ],
+    [
+      0.5,
+      3.0
+    ],
+    [
+      0.1,
+      5.0
+    ],
+    [
+      0.5,
+      2.0
+    ]
+  ],
+  "fitness_function": "fitness = 1.0 * total_time + 0.05 * mean_congestion + 0.001 * near_collisions + fairness_weight * fairness_gap_time + 10.0 * remaining_agents",
+  "common_summary_fairness_weight": 1.0,
+  "methods": [
+    {
+      "method": "fixed_default",
+      "fitness": 42.18518008448498,
+      "search_fitness": 42.18518008448498,
+      "search_fairness_weight": 1.0,
+      "total_time": 30.066666666666666,
+      "mean_congestion": 4.388046134144138,
+      "peak_congestion": 12.333333333333334,
+      "near_collisions": 91.33333333333333,
+      "remaining_agents": 0.0,
+      "mean_high_time": 5.508888888888889,
+      "mean_low_time": 17.316666666666666,
+      "fairness_gap_time": 11.807777777777776,
+      "all_evacuated": true,
+      "best_params": [
+        2.0,
+        0.5,
+        2.0,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "method": "random_search",
+      "fitness": 22.253707602339183,
+      "search_fitness": 22.253707602339183,
+      "search_fairness_weight": 1.0,
+      "total_time": 15.133333333333335,
+      "mean_congestion": 5.925263157894737,
+      "peak_congestion": 16.333333333333332,
+      "near_collisions": 556.3333333333334,
+      "remaining_agents": 0.0,
+      "mean_high_time": 2.505555555555556,
+      "mean_low_time": 8.773333333333333,
+      "fairness_gap_time": 6.267777777777777,
+      "all_evacuated": true,
+      "best_params": [
+        4.60737341598033,
+        0.1618240295245535,
+        1.7167605307431193,
+        1.38132881121113,
+        0.9928734753027293
+      ]
+    },
+    {
+      "method": "ga_no_fairness",
+      "fitness": 14.943563442768411,
+      "search_fitness": 10.789118998323968,
+      "search_fairness_weight": 0.0,
+      "total_time": 9.833333333333334,
+      "mean_congestion": 6.8890466331460125,
+      "peak_congestion": 17.333333333333332,
+      "near_collisions": 611.3333333333334,
+      "remaining_agents": 0.0,
+      "mean_high_time": 2.108888888888889,
+      "mean_low_time": 6.263333333333333,
+      "fairness_gap_time": 4.154444444444444,
+      "all_evacuated": true,
+      "best_params": [
+        4.540882519192448,
+        0.1,
+        0.5,
+        0.14489966918765573,
+        0.6303158230969961
+      ]
+    },
+    {
+      "method": "ga_fairness",
+      "fitness": 15.035184258649696,
+      "search_fitness": 15.035184258649696,
+      "search_fairness_weight": 1.0,
+      "total_time": 9.866666666666667,
+      "mean_congestion": 6.890351839660596,
+      "peak_congestion": 17.333333333333332,
+      "near_collisions": 617.3333333333334,
+      "remaining_agents": 0.0,
+      "mean_high_time": 2.1033333333333335,
+      "mean_low_time": 6.31,
+      "fairness_gap_time": 4.206666666666666,
+      "all_evacuated": true,
+      "best_params": [
+        4.467045797792209,
+        0.1,
+        0.5,
+        0.120820073617805,
+        0.6823231834941732
+      ]
+    }
+  ],
+  "random_search": {
+    "num_samples": 50,
+    "rng_seed": 321
+  },
+  "ga_settings": {
+    "population_size": 15,
+    "generations": 15,
+    "rng_seed": 123
+  },
+  "convergence": {
+    "ga_no_fairness": [
+      {
+        "generation": 0,
+        "best_fitness": 19.457182499133822,
+        "generation_best_fitness": 19.457182499133822,
+        "best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 18.8,
+        "fairness_gap_time": 7.702222222222224,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 1,
+        "best_fitness": 19.457182499133822,
+        "generation_best_fitness": 19.457182499133822,
+        "best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 18.8,
+        "fairness_gap_time": 7.702222222222224,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 2,
+        "best_fitness": 13.791773217140209,
+        "generation_best_fitness": 13.791773217140209,
+        "best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 12.800000000000002,
+        "fairness_gap_time": 5.420000000000002,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 3,
+        "best_fitness": 13.791773217140209,
+        "generation_best_fitness": 13.791773217140209,
+        "best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 12.800000000000002,
+        "fairness_gap_time": 5.420000000000002,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 4,
+        "best_fitness": 13.789973985458673,
+        "generation_best_fitness": 13.789973985458673,
+        "best_params": [
+          3.4487575248079487,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4487575248079487,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 12.800000000000002,
+        "fairness_gap_time": 5.417777777777778,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 5,
+        "best_fitness": 12.297885851343798,
+        "generation_best_fitness": 12.297885851343798,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 11.16666666666667,
+        "fairness_gap_time": 4.705555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 6,
+        "best_fitness": 12.297885851343798,
+        "generation_best_fitness": 12.297885851343798,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 11.16666666666667,
+        "fairness_gap_time": 4.705555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 7,
+        "best_fitness": 12.297885851343798,
+        "generation_best_fitness": 12.297885851343798,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 11.16666666666667,
+        "fairness_gap_time": 4.705555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 8,
+        "best_fitness": 11.43332895937569,
+        "generation_best_fitness": 11.43332895937569,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "total_time": 10.433333333333335,
+        "fairness_gap_time": 4.64111111111111,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 9,
+        "best_fitness": 11.43332895937569,
+        "generation_best_fitness": 11.43332895937569,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "total_time": 10.433333333333335,
+        "fairness_gap_time": 4.64111111111111,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 10,
+        "best_fitness": 10.830690378890448,
+        "generation_best_fitness": 10.830690378890448,
+        "best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5074703662148782,
+          0.1,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5074703662148782,
+          0.1,
+          0.7638588516275455
+        ],
+        "total_time": 9.9,
+        "fairness_gap_time": 4.286666666666667,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 11,
+        "best_fitness": 10.830690378890448,
+        "generation_best_fitness": 10.830690378890448,
+        "best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5074703662148782,
+          0.1,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5074703662148782,
+          0.1,
+          0.7638588516275455
+        ],
+        "total_time": 9.9,
+        "fairness_gap_time": 4.286666666666667,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 12,
+        "best_fitness": 10.814909345298403,
+        "generation_best_fitness": 10.814909345298403,
+        "best_params": [
+          4.288710120504242,
+          0.1,
+          0.5,
+          0.1,
+          0.5860331088245014
+        ],
+        "generation_best_params": [
+          4.288710120504242,
+          0.1,
+          0.5,
+          0.1,
+          0.5860331088245014
+        ],
+        "total_time": 9.9,
+        "fairness_gap_time": 4.275555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 13,
+        "best_fitness": 10.803672079584523,
+        "generation_best_fitness": 10.803672079584523,
+        "best_params": [
+          4.507132080349121,
+          0.1,
+          0.5,
+          0.11309480269256715,
+          0.5954654511474289
+        ],
+        "generation_best_params": [
+          4.507132080349121,
+          0.1,
+          0.5,
+          0.11309480269256715,
+          0.5954654511474289
+        ],
+        "total_time": 9.866666666666667,
+        "fairness_gap_time": 4.127777777777778,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 14,
+        "best_fitness": 10.789118998323968,
+        "generation_best_fitness": 10.789118998323968,
+        "best_params": [
+          4.540882519192448,
+          0.1,
+          0.5,
+          0.14489966918765573,
+          0.6303158230969961
+        ],
+        "generation_best_params": [
+          4.540882519192448,
+          0.1,
+          0.5,
+          0.14489966918765573,
+          0.6303158230969961
+        ],
+        "total_time": 9.833333333333334,
+        "fairness_gap_time": 4.154444444444444,
+        "remaining_agents": 0.0
+      }
+    ],
+    "ga_fairness": [
+      {
+        "generation": 0,
+        "best_fitness": 27.159404721356047,
+        "generation_best_fitness": 27.159404721356047,
+        "best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 18.8,
+        "fairness_gap_time": 7.702222222222224,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 1,
+        "best_fitness": 27.159404721356047,
+        "generation_best_fitness": 27.159404721356047,
+        "best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.3637229921308911,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 18.8,
+        "fairness_gap_time": 7.702222222222224,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 2,
+        "best_fitness": 19.211773217140212,
+        "generation_best_fitness": 19.211773217140212,
+        "best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 12.800000000000002,
+        "fairness_gap_time": 5.420000000000002,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 3,
+        "best_fitness": 19.211773217140212,
+        "generation_best_fitness": 19.211773217140212,
+        "best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4435241299159034,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 12.800000000000002,
+        "fairness_gap_time": 5.420000000000002,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 4,
+        "best_fitness": 19.207751763236452,
+        "generation_best_fitness": 19.207751763236452,
+        "best_params": [
+          3.4487575248079487,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4487575248079487,
+          0.1,
+          1.0508996819315284,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 12.800000000000002,
+        "fairness_gap_time": 5.417777777777778,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 5,
+        "best_fitness": 17.003441406899356,
+        "generation_best_fitness": 17.003441406899356,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 11.16666666666667,
+        "fairness_gap_time": 4.705555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 6,
+        "best_fitness": 17.003441406899356,
+        "generation_best_fitness": 17.003441406899356,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 11.16666666666667,
+        "fairness_gap_time": 4.705555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 7,
+        "best_fitness": 17.003441406899356,
+        "generation_best_fitness": 17.003441406899356,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          1.0034218724234816,
+          0.7638588516275455
+        ],
+        "total_time": 11.16666666666667,
+        "fairness_gap_time": 4.705555555555556,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 8,
+        "best_fitness": 16.0744400704868,
+        "generation_best_fitness": 16.0744400704868,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "total_time": 10.433333333333335,
+        "fairness_gap_time": 4.64111111111111,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 9,
+        "best_fitness": 16.0744400704868,
+        "generation_best_fitness": 16.0744400704868,
+        "best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          3.4462429798390435,
+          0.1,
+          0.5,
+          0.32654607620059584,
+          0.7638588516275455
+        ],
+        "total_time": 10.433333333333335,
+        "fairness_gap_time": 4.64111111111111,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 10,
+        "best_fitness": 15.120560089322804,
+        "generation_best_fitness": 15.120560089322804,
+        "best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5,
+          0.1,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5,
+          0.1,
+          0.7638588516275455
+        ],
+        "total_time": 9.9,
+        "fairness_gap_time": 4.275555555555555,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 11,
+        "best_fitness": 15.120560089322804,
+        "generation_best_fitness": 15.120560089322804,
+        "best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5,
+          0.1,
+          0.7638588516275455
+        ],
+        "generation_best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5,
+          0.1,
+          0.7638588516275455
+        ],
+        "total_time": 9.9,
+        "fairness_gap_time": 4.275555555555555,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 12,
+        "best_fitness": 15.04212566747129,
+        "generation_best_fitness": 15.04212566747129,
+        "best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5,
+          0.1,
+          0.7885978924142736
+        ],
+        "generation_best_params": [
+          4.4237092742110296,
+          0.1,
+          0.5,
+          0.1,
+          0.7885978924142736
+        ],
+        "total_time": 9.866666666666667,
+        "fairness_gap_time": 4.2299999999999995,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 13,
+        "best_fitness": 15.035184258649696,
+        "generation_best_fitness": 15.035184258649696,
+        "best_params": [
+          4.467045797792209,
+          0.1,
+          0.5,
+          0.120820073617805,
+          0.6823231834941732
+        ],
+        "generation_best_params": [
+          4.467045797792209,
+          0.1,
+          0.5,
+          0.120820073617805,
+          0.6823231834941732
+        ],
+        "total_time": 9.866666666666667,
+        "fairness_gap_time": 4.206666666666666,
+        "remaining_agents": 0.0
+      },
+      {
+        "generation": 14,
+        "best_fitness": 15.035184258649696,
+        "generation_best_fitness": 15.035184258649696,
+        "best_params": [
+          4.467045797792209,
+          0.1,
+          0.5,
+          0.120820073617805,
+          0.6823231834941732
+        ],
+        "generation_best_params": [
+          4.467045797792209,
+          0.1,
+          0.5,
+          0.120820073617805,
+          0.6823231834941732
+        ],
+        "total_time": 9.866666666666667,
+        "fairness_gap_time": 4.206666666666666,
+        "remaining_agents": 0.0
+      }
+    ]
+  },
+  "outputs": {
+    "summary_csv": "results\\checkpoint\\checkpoint_summary.csv",
+    "summary_json": "results\\checkpoint\\checkpoint_summary.json",
+    "ga_no_fairness_convergence_csv": "results\\checkpoint\\ga_no_fairness_convergence.csv",
+    "ga_fairness_convergence_csv": "results\\checkpoint\\ga_fairness_convergence.csv",
+    "notes_md": "results\\checkpoint\\checkpoint_notes.md"
+  },
+  "notes": "# Checkpoint Experiment Notes\n\n## Experimental Settings\n- layout: `standard`\n- exit_width: `0.6`\n- num_high: `30`\n- num_low: `10`\n- max_ticks: `500`\n- dt: `0.1`\n- evaluation seeds: `[0, 1, 2]`\n- random_search_samples: `50`\n- ga_population_size: `15`\n- ga_generations: `15`\n\n## Fitness Function\n`fitness = 1.0 * total_time + 0.05 * mean_congestion + 0.001 * near_collisions + fairness_weight * fairness_gap_time + 10.0 * remaining_agents`\n\nFor the common comparison summary, `fitness` is recomputed with `fairness_weight = 1.0` for every method. `GA without fairness` is optimized with `fairness_weight = 0.0`; its convergence file therefore reports the no-fairness optimization objective.\n\n## Fairness Definition\n`G = abs(mean_low_time - mean_high_time)`\n\n## Result Summary\n| Method | Fitness | Total time | Fairness gap | Mean congestion | Near collisions | Remaining |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: |\n| fixed_default | 42.185 | 30.067 | 11.808 | 4.388 | 91.333 | 0.000 |\n| random_search | 22.254 | 15.133 | 6.268 | 5.925 | 556.333 | 0.000 |\n| ga_no_fairness | 14.944 | 9.833 | 4.154 | 6.889 | 611.333 | 0.000 |\n| ga_fairness | 15.035 | 9.867 | 4.207 | 6.890 | 617.333 | 0.000 |\n\nBest common checkpoint fitness: `ga_no_fairness` (14.944).\nFastest mean evacuation time: `ga_no_fairness` (9.833s).\nThe smallest mean evacuation-time gap was produced by `ga_no_fairness` (4.154s).\n\n## Planned Next Experiments\n- More evaluation seeds.\n- Fairness-weight sweep with `w_G in {0, 0.25, 0.5, 1.0, 2.0}`.\n- Generalization to corridor and asymmetric layouts.\n- Different high/low mobility ratios.\n"
+}
