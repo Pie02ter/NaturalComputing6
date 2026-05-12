@@ -189,6 +189,7 @@ def evaluate_candidate(
             num_low=settings["num_low"],
             room_size=layout["room_size"],
             exit_pos=layout["exit_pos"],
+            exit_width=layout["exit_width"],
             max_ticks=settings["max_ticks"],
             dt=settings["dt"],
             seed=seed,

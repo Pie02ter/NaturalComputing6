@@ -2,7 +2,7 @@
 LAYOUT_STANDARD = {
     "room_size": (5.0, 5.0),
     "exit_pos": (5.0, 1.0),
-    "exit_width": 0.2,
+    "exit_width": 0.6,
 }
 
 # Layout 2: A wide, narrow hallway
@@ -27,14 +27,13 @@ LAYOUTS = {
 
 PARAM_NAMES = [
     "accel_factor",
-    "exit_threshold",
     "agent_rep_weight",
     "agent_radius",
     "wall_rep_weight",
     "wall_radius",
 ]
 
-DEFAULT_PARAMS = [2.0, 1.0, 0.5, 2.0, 0.5, 1.0]
+DEFAULT_PARAMS = [2.0, 0.5, 2.0, 0.5, 1.0]
 
 DEFAULT_SIMULATION_SETTINGS = {
     "layout": "standard",
@@ -68,8 +67,8 @@ GA_DEFAULTS = {
 }
 
 HEURISTIC_PARAM_SETS = {
-    "heuristic_1": [1.8, 0.9, 1.2, 2.2, 0.7, 1.0],
-    "heuristic_2": [2.4, 1.1, 0.9, 1.6, 0.9, 1.2],
+    "heuristic_1": [1.8, 1.2, 2.2, 0.7, 1.0],
+    "heuristic_2": [2.4, 0.9, 1.6, 0.9, 1.2],
 }
 
 EXPERIMENT_PRESETS = {
@@ -163,11 +162,10 @@ EXPERIMENT_PRESETS = {
     },
 }
 
-# Default GA bounds for the parameters:
-# [accel_factor, exit_threshold, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
+# Default GA bounds for local movement-rule parameters:
+# [accel_factor, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
 PARAM_BOUNDS = [
     (0.1, 5.0),  # accel_factor
-    (0.5, 2.0),  # exit_threshold
     (0.1, 5.0),  # agent_rep_weight
     (0.5, 3.0),  # agent_radius
     (0.1, 5.0),  # wall_rep_weight

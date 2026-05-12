@@ -280,6 +280,50 @@ button:hover {
   gap: 18px;
 }
 
+.checkpoint-shell {
+  display: grid;
+  gap: 20px;
+}
+
+.checkpoint-grid,
+.insight-grid,
+.plot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.plot-card {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #d5dbe6;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.plot-card figcaption {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.plot-card img {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.notes-box {
+  max-height: 420px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid #d5dbe6;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e5e7eb;
+  white-space: pre-wrap;
+}
+
 @media (max-width: 1100px) {
   .two-column-shell {
     grid-template-columns: 1fr;
@@ -298,6 +342,9 @@ button:hover {
   .card-grid,
   .two-columns,
   .compare-grid,
+  .checkpoint-grid,
+  .insight-grid,
+  .plot-grid,
   .three-columns {
     grid-template-columns: 1fr;
   }
