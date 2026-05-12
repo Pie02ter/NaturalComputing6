@@ -100,6 +100,51 @@
     return Array.from(container.querySelectorAll("input[type='range']")).map((slider) => Number(slider.value));
   };
 
+  Common.buildGaParamControls = function buildGaParamControls(container, config, initialParams) {
+    if (!container || !config.ga_param_names || !config.ga_param_bounds) {
+      return;
+    }
+    const names = config.ga_param_names;
+    const bounds = config.ga_param_bounds;
+    const values = initialParams || config.default_ga_seed_vector || [];
+    container.innerHTML = "";
+    names.forEach((name, index) => {
+      const [min, max] = bounds[index];
+      const value = values[index] ?? min;
+      const row = document.createElement("label");
+      row.className = "param-row";
+      row.innerHTML = `<div class="param-header"><span>${name}</span><span id="ga-param-value-${index}">${Number(value).toFixed(2)}</span></div>`;
+      const slider = document.createElement("input");
+      slider.type = "range";
+      slider.min = min;
+      slider.max = max;
+      slider.step = "0.05";
+      slider.value = value;
+      slider.dataset.gaIndex = index;
+      slider.addEventListener("input", (event) => {
+        const idx = event.target.dataset.gaIndex;
+        document.getElementById(`ga-param-value-${idx}`).textContent = Number(event.target.value).toFixed(2);
+      });
+      row.appendChild(slider);
+      container.appendChild(row);
+    });
+  };
+
+  Common.readGaParamValues = function readGaParamValues(container) {
+    if (!container) {
+      return [];
+    }
+    return Array.from(container.querySelectorAll("input[type='range']")).map((slider) => Number(slider.value));
+  };
+
+  Common.renderFixedWallSummary = function renderFixedWallSummary(element, config) {
+    if (!element || !config.fixed_wall_params) {
+      return;
+    }
+    const w = config.fixed_wall_params;
+    element.textContent = `Fixed during GA: wall_rep_weight = ${w.wall_rep_weight}, wall_radius = ${w.wall_radius}`;
+  };
+
   Common.buildFitnessWeightControls = function buildFitnessWeightControls(container, weights) {
     if (!container) {
       return;

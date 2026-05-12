@@ -4,8 +4,18 @@ from pathlib import Path
 
 import numpy as np
 
-from config import DEFAULT_PARAMS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
-from ga import arithmetic_crossover, initialize_population, mutate, tournament_select
+from config import (
+    DEFAULT_PARAMS,
+    FIXED_WALL_RADIUS,
+    FIXED_WALL_REP_WEIGHT,
+    GA_PARAM_BOUNDS,
+    GA_PARAM_NAMES,
+    DEFAULT_GA_SEED_VECTOR,
+    LAYOUTS,
+    PARAM_BOUNDS,
+    PARAM_NAMES,
+)
+from ga import arithmetic_crossover, initialize_population, merge_active_to_full, mutate, tournament_select
 from simulator import run_simulation
 
 
@@ -185,7 +195,8 @@ def run_random_search(num_samples, bounds, evaluator, rng_seed=321):
     best = None
     evaluations = []
     for sample_id in range(num_samples):
-        params = [float(rng.uniform(low, high)) for low, high in bounds]
+        active = [float(rng.uniform(low, high)) for low, high in bounds]
+        params = merge_active_to_full(np.array(active)).tolist()
         fitness, metrics = evaluator(params)
         record = {
             "sample_id": sample_id,
@@ -225,10 +236,10 @@ def run_ga(
 ):
     seeds = CHECKPOINT_SEEDS if seeds is None else list(seeds)
     settings = _merged_settings(settings)
-    bounds = PARAM_BOUNDS if bounds is None else bounds
+    bounds = GA_PARAM_BOUNDS if bounds is None else bounds
     weights = checkpoint_fitness_weights(fairness_weight)
     rng = np.random.default_rng(rng_seed)
-    population = initialize_population(population_size, bounds, rng, seed_vector=DEFAULT_PARAMS)
+    population = initialize_population(population_size, bounds, rng, seed_vector=DEFAULT_GA_SEED_VECTOR)
     cache = {}
 
     def evaluator(params):
@@ -242,9 +253,9 @@ def run_ga(
         evaluations = []
         fitnesses = []
         for candidate in population:
-            fitness, metrics = evaluator(candidate)
-            params = [float(value) for value in candidate]
-            evaluations.append({"params": params, "fitness": fitness, "metrics": metrics})
+            full_params = merge_active_to_full(np.array(candidate)).tolist()
+            fitness, metrics = evaluator(full_params)
+            evaluations.append({"params": metrics["params"], "fitness": fitness, "metrics": metrics})
             fitnesses.append(fitness)
 
         ranked_indices = np.argsort(fitnesses)
@@ -400,6 +411,7 @@ def build_checkpoint_notes(entries, settings, seeds, random_search_samples, ga_p
             f"- random_search_samples: `{random_search_samples}`",
             f"- ga_population_size: `{ga_population_size}`",
             f"- ga_generations: `{ga_generations}`",
+            f"- GA search space: `accel_factor`, `agent_rep_weight`, `agent_radius`; fixed `wall_rep_weight = {FIXED_WALL_REP_WEIGHT}`, `wall_radius = {FIXED_WALL_RADIUS}`.",
             "",
             "## Fitness Function",
             "`fitness = 1.0 * total_time + 0.05 * mean_congestion + 0.001 * near_collisions + fairness_weight * fairness_gap_time + 10.0 * remaining_agents`",
@@ -451,7 +463,7 @@ def run_checkpoint_experiment(
     default_fitness, default_metrics = common_evaluator(DEFAULT_PARAMS)
     default_entry = _summary_entry("fixed_default", default_fitness, default_metrics, 1.0, default_fitness, DEFAULT_PARAMS)
 
-    random_result = run_random_search(random_search_samples, PARAM_BOUNDS, common_evaluator, rng_seed=random_rng_seed)
+    random_result = run_random_search(random_search_samples, GA_PARAM_BOUNDS, common_evaluator, rng_seed=random_rng_seed)
     random_entry = _summary_entry(
         "random_search",
         random_result["best_fitness"],
@@ -520,6 +532,10 @@ def run_checkpoint_experiment(
         "seeds": seeds,
         "param_names": PARAM_NAMES,
         "param_bounds": PARAM_BOUNDS,
+        "ga_param_names": GA_PARAM_NAMES,
+        "ga_param_bounds": GA_PARAM_BOUNDS,
+        "fixed_wall_rep_weight": FIXED_WALL_REP_WEIGHT,
+        "fixed_wall_radius": FIXED_WALL_RADIUS,
         "fitness_function": "fitness = 1.0 * total_time + 0.05 * mean_congestion + 0.001 * near_collisions + fairness_weight * fairness_gap_time + 10.0 * remaining_agents",
         "common_summary_fairness_weight": 1.0,
         "methods": entries,

@@ -2,7 +2,23 @@ from flask import Flask, jsonify, request, send_from_directory
 
 from baselines import run_default_baseline, run_heuristic_baselines, run_random_search
 from checkpoint_pipeline import CHECKPOINT_GA_GENERATIONS, CHECKPOINT_GA_POPULATION_SIZE, CHECKPOINT_RANDOM_SEARCH_SAMPLES, CHECKPOINT_RESULTS_DIR, CHECKPOINT_SEEDS, run_checkpoint_experiment
-from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_FITNESS_WEIGHTS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, EXPERIMENT_PRESETS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
+from config import (
+    DEFAULT_EVALUATION_SEEDS,
+    DEFAULT_FITNESS_WEIGHTS,
+    DEFAULT_GA_SEED_VECTOR,
+    DEFAULT_PARAMS,
+    DEFAULT_SIMULATION_SETTINGS,
+    EXPERIMENT_PRESETS,
+    FIXED_WALL_RADIUS,
+    FIXED_WALL_REP_WEIGHT,
+    GA_ACTIVE_INDICES,
+    GA_DEFAULTS,
+    GA_PARAM_BOUNDS,
+    GA_PARAM_NAMES,
+    LAYOUTS,
+    PARAM_BOUNDS,
+    PARAM_NAMES,
+)
 from experiments import run_generalization_suite, run_standard_comparison
 from ga import run_ga
 from simulator import run_simulation
@@ -24,6 +40,16 @@ def _layout_payload():
 
 def _preset_payload():
     return EXPERIMENT_PRESETS
+
+
+def _optional_ga_seed_vector(payload):
+    raw = payload.get("ga_seed_vector")
+    if raw is None:
+        return None
+    vec = [float(value) for value in raw]
+    if len(vec) != len(GA_PARAM_BOUNDS):
+        raise ValueError(f"ga_seed_vector must have length {len(GA_PARAM_BOUNDS)}.")
+    return vec
 
 
 def _fitness_weights_payload(payload):
@@ -147,6 +173,14 @@ def get_config():
             "param_names": PARAM_NAMES,
             "param_bounds": PARAM_BOUNDS,
             "default_params": DEFAULT_PARAMS,
+            "ga_active_indices": list(GA_ACTIVE_INDICES),
+            "ga_param_names": GA_PARAM_NAMES,
+            "ga_param_bounds": GA_PARAM_BOUNDS,
+            "default_ga_seed_vector": DEFAULT_GA_SEED_VECTOR,
+            "fixed_wall_params": {
+                "wall_rep_weight": FIXED_WALL_REP_WEIGHT,
+                "wall_radius": FIXED_WALL_RADIUS,
+            },
             "defaults": DEFAULT_SIMULATION_SETTINGS,
             "default_evaluation_seeds": DEFAULT_EVALUATION_SEEDS,
             "default_fitness_weights": DEFAULT_FITNESS_WEIGHTS,
@@ -171,6 +205,7 @@ def optimize_ga():
 
     try:
         simulation = _simulation_payload(payload)
+        active_seed_vector = _optional_ga_seed_vector(payload)
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
 
@@ -190,6 +225,7 @@ def optimize_ga():
         mutation_sigma_scale=float(payload.get("mutation_sigma_scale", GA_DEFAULTS["mutation_sigma_scale"])),
         rng_seed=int(payload.get("rng_seed", 123)),
         fitness_weights=fitness_weights,
+        active_seed_vector=active_seed_vector,
     )
 
     visualization_seed = int(payload.get("visualization_seed", simulation["seed"]))
@@ -217,6 +253,7 @@ def compare_methods():
 
     try:
         simulation = _simulation_payload(payload)
+        active_seed_vector = _optional_ga_seed_vector(payload)
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
 
@@ -264,6 +301,7 @@ def compare_methods():
         mutation_sigma_scale=float(payload.get("mutation_sigma_scale", GA_DEFAULTS["mutation_sigma_scale"])),
         rng_seed=int(payload.get("rng_seed", 123)),
         fitness_weights=fitness_weights,
+        active_seed_vector=active_seed_vector,
     )
 
     visualization_seed = int(payload.get("visualization_seed", simulation["seed"]))

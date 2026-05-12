@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     maxTicks: document.getElementById("max-ticks"),
     dt: document.getElementById("dt"),
     evaluationSeeds: document.getElementById("evaluation-seeds"),
+    gaParams: document.getElementById("ga-params"),
+    fixedWallSummary: document.getElementById("fixed-wall-summary"),
     fitnessWeights: document.getElementById("fitness-weights"),
     status: document.getElementById("status"),
     runGaButton: document.getElementById("run-ga-button"),
@@ -54,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       fitness_weights: Common.readFitnessWeights(elements.fitnessWeights),
       ...Common.readGaSettings(elements.gaFields),
       visualization_seed: Number(elements.seed.value),
+      ga_seed_vector: Common.readGaParamValues(elements.gaParams),
     };
   }
 
@@ -135,6 +138,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   state.config = await Common.fetchConfig();
   Common.fillScenarioControls(elements, state.config);
+  Common.buildGaParamControls(elements.gaParams, state.config);
+  Common.renderFixedWallSummary(elements.fixedWallSummary, state.config);
   Common.buildFitnessWeightControls(elements.fitnessWeights, state.config.default_fitness_weights);
   Common.fillGaControls(elements.gaFields, state.config, { rng_seed: 123 });
   elements.evaluationSeeds.value = state.config.default_evaluation_seeds.join(", ");

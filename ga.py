@@ -4,7 +4,17 @@ from pathlib import Path
 
 import numpy as np
 
-from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_FITNESS_WEIGHTS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS
+from config import (
+    DEFAULT_EVALUATION_SEEDS,
+    DEFAULT_FITNESS_WEIGHTS,
+    DEFAULT_GA_SEED_VECTOR,
+    DEFAULT_SIMULATION_SETTINGS,
+    FIXED_WALL_RADIUS,
+    FIXED_WALL_REP_WEIGHT,
+    GA_DEFAULTS,
+    GA_PARAM_BOUNDS,
+    LAYOUTS,
+)
 from simulator import run_simulation
 
 
@@ -108,6 +118,18 @@ def _aggregate_results(params, seeds, layout_name, settings, per_seed_results, f
     aggregate.update(metrics)
     aggregate["fitness"] = compute_fitness(aggregate, fitness_weights)
     return aggregate
+
+
+def merge_active_to_full(active_vec):
+    """Expand GA genome (accel, agent repulsion, agent radius) to full params for run_simulation."""
+    active_vec = np.asarray(active_vec, dtype=float).reshape(-1)
+    if active_vec.shape[0] != len(GA_PARAM_BOUNDS):
+        raise ValueError(f"active_vec must have length {len(GA_PARAM_BOUNDS)}, got {active_vec.shape[0]}")
+    full = np.empty(5, dtype=float)
+    full[0:3] = active_vec
+    full[3] = FIXED_WALL_REP_WEIGHT
+    full[4] = FIXED_WALL_RADIUS
+    return full
 
 
 def append_log_row(log_path, row):
@@ -259,6 +281,7 @@ def run_ga(
     rng_seed=123,
     log_path=None,
     fitness_weights=None,
+    active_seed_vector=None,
 ):
     seeds = DEFAULT_EVALUATION_SEEDS if seeds is None else list(seeds)
     layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
@@ -273,7 +296,10 @@ def run_ga(
 
     rng = np.random.default_rng(rng_seed)
     cache = {}
-    population = initialize_population(population_size, PARAM_BOUNDS, rng, seed_vector=DEFAULT_PARAMS)
+    seed_vec = DEFAULT_GA_SEED_VECTOR if active_seed_vector is None else [float(x) for x in active_seed_vector]
+    if len(seed_vec) != len(GA_PARAM_BOUNDS):
+        raise ValueError(f"active_seed_vector must have length {len(GA_PARAM_BOUNDS)}")
+    population = initialize_population(population_size, GA_PARAM_BOUNDS, rng, seed_vector=seed_vec)
 
     best_evaluation = None
     history = []
@@ -282,8 +308,9 @@ def run_ga(
         evaluations = []
         fitnesses = []
         for individual_id, candidate in enumerate(population):
+            full_params = merge_active_to_full(candidate).tolist()
             evaluation = evaluate_candidate(
-                params=candidate,
+                params=full_params,
                 seeds=seeds,
                 layout_name=layout_name,
                 sim_settings=sim_settings,
@@ -322,9 +349,9 @@ def run_ga(
             else:
                 child_a, child_b = np.array(parent_a, copy=True), np.array(parent_b, copy=True)
 
-            next_population.append(mutate(child_a, PARAM_BOUNDS, mutation_probability, mutation_sigma_scale, rng))
+            next_population.append(mutate(child_a, GA_PARAM_BOUNDS, mutation_probability, mutation_sigma_scale, rng))
             if len(next_population) < population_size:
-                next_population.append(mutate(child_b, PARAM_BOUNDS, mutation_probability, mutation_sigma_scale, rng))
+                next_population.append(mutate(child_b, GA_PARAM_BOUNDS, mutation_probability, mutation_sigma_scale, rng))
 
         population = next_population
 
@@ -345,5 +372,6 @@ def run_ga(
             "mutation_probability": mutation_probability,
             "mutation_sigma_scale": mutation_sigma_scale,
             "rng_seed": rng_seed,
+            "active_seed_vector": list(seed_vec),
         },
     }

@@ -35,6 +35,11 @@ PARAM_NAMES = [
 
 DEFAULT_PARAMS = [2.0, 0.5, 2.0, 0.5, 1.0]
 
+# Wall repulsion held fixed during GA (research focuses on interpersonal avoidance + acceleration).
+# Must stay aligned with DEFAULT_PARAMS[3] and DEFAULT_PARAMS[4].
+FIXED_WALL_REP_WEIGHT = 0.5
+FIXED_WALL_RADIUS = 1.0
+
 DEFAULT_SIMULATION_SETTINGS = {
     "layout": "standard",
     "num_high": 30,
@@ -171,3 +176,9 @@ PARAM_BOUNDS = [
     (0.1, 5.0),  # wall_rep_weight
     (0.5, 2.0),  # wall_radius
 ]
+
+# GA genome: only indices 0–2 (bottleneck / crowd interaction); walls use FIXED_WALL_* above.
+GA_ACTIVE_INDICES = (0, 1, 2)
+GA_PARAM_NAMES = [PARAM_NAMES[i] for i in GA_ACTIVE_INDICES]
+GA_PARAM_BOUNDS = [PARAM_BOUNDS[i] for i in GA_ACTIVE_INDICES]
+DEFAULT_GA_SEED_VECTOR = [DEFAULT_PARAMS[i] for i in GA_ACTIVE_INDICES]

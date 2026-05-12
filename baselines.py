@@ -1,7 +1,7 @@
 import numpy as np
 
-from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, HEURISTIC_PARAM_SETS, PARAM_BOUNDS
-from ga import evaluate_candidate
+from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, GA_PARAM_BOUNDS, HEURISTIC_PARAM_SETS
+from ga import evaluate_candidate, merge_active_to_full
 
 
 def run_default_baseline(seeds=None, layout_name=None, sim_settings=None, log_path=None, cache=None, fitness_weights=None):
@@ -49,7 +49,8 @@ def run_random_search(num_candidates, seeds=None, layout_name=None, sim_settings
     best = None
     evaluations = []
     for candidate_id in range(num_candidates):
-        params = [rng.uniform(low, high) for low, high in PARAM_BOUNDS]
+        active = [rng.uniform(low, high) for low, high in GA_PARAM_BOUNDS]
+        params = merge_active_to_full(np.array(active)).tolist()
         evaluation = evaluate_candidate(
             params=params,
             seeds=seeds,
