@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, send_from_directory
 
 from baselines import run_default_baseline, run_heuristic_baselines, run_random_search
+from checkpoint_pipeline import CHECKPOINT_GA_GENERATIONS, CHECKPOINT_GA_POPULATION_SIZE, CHECKPOINT_RANDOM_SEARCH_SAMPLES, CHECKPOINT_RESULTS_DIR, CHECKPOINT_SEEDS, run_checkpoint_experiment
 from config import DEFAULT_EVALUATION_SEEDS, DEFAULT_FITNESS_WEIGHTS, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, EXPERIMENT_PRESETS, GA_DEFAULTS, LAYOUTS, PARAM_BOUNDS, PARAM_NAMES
 from experiments import run_generalization_suite, run_standard_comparison
 from ga import run_ga
@@ -55,7 +56,7 @@ def _simulation_payload(payload):
 
     params = payload.get("params", DEFAULT_PARAMS)
     if len(params) != len(DEFAULT_PARAMS):
-        raise ValueError("Expected 6 movement parameters.")
+        raise ValueError(f"Expected {len(DEFAULT_PARAMS)} movement parameters.")
 
     return {
         "layout_name": layout_name,
@@ -78,6 +79,7 @@ def _run_simulation_for_payload(payload):
         num_low=simulation["num_low"],
         room_size=layout["room_size"],
         exit_pos=layout["exit_pos"],
+        exit_width=layout["exit_width"],
         max_ticks=simulation["max_ticks"],
         dt=simulation["dt"],
         seed=simulation["seed"],
@@ -125,6 +127,16 @@ def comparison_page():
 @app.get("/experiments")
 def experiments_page():
     return send_from_directory(app.static_folder, "experiments.html")
+
+
+@app.get("/checkpoint")
+def checkpoint_page():
+    return send_from_directory(app.static_folder, "checkpoint.html")
+
+
+@app.get("/results/<path:filename>")
+def result_file(filename):
+    return send_from_directory("results", filename)
 
 
 @app.get("/api/config")
@@ -346,6 +358,60 @@ def run_experiment_api():
         response["generalization"] = generalization["generalization"]
 
     return jsonify(response)
+
+
+@app.post("/api/checkpoint/run")
+def run_checkpoint_api():
+    payload = request.get_json(silent=True) or {}
+    results_dir = payload.get("results_dir", str(CHECKPOINT_RESULTS_DIR))
+    seeds = [int(seed) for seed in payload.get("seeds", CHECKPOINT_SEEDS)]
+    random_search_samples = int(payload.get("random_search_samples", CHECKPOINT_RANDOM_SEARCH_SAMPLES))
+    ga_population_size = int(payload.get("ga_population_size", CHECKPOINT_GA_POPULATION_SIZE))
+    ga_generations = int(payload.get("ga_generations", CHECKPOINT_GA_GENERATIONS))
+
+    result = run_checkpoint_experiment(
+        results_dir=results_dir,
+        seeds=seeds,
+        random_search_samples=random_search_samples,
+        ga_population_size=ga_population_size,
+        ga_generations=ga_generations,
+    )
+
+    from plot_checkpoint_results import plot_checkpoint_results
+
+    plot_outputs = plot_checkpoint_results(results_dir)
+    result["outputs"].update(plot_outputs)
+    result["plot_urls"] = {
+        name: "/" + path.replace("\\", "/")
+        for name, path in plot_outputs.items()
+    }
+    return jsonify(result)
+
+
+@app.post("/api/checkpoint/animate")
+def animate_checkpoint_api():
+    payload = request.get_json(silent=True) or {}
+    results_dir = payload.get("results_dir", str(CHECKPOINT_RESULTS_DIR))
+    seed = int(payload.get("seed", 0))
+    fps = int(payload.get("fps", 12))
+    output_format = payload.get("format", "gif")
+
+    from animate_checkpoint_runs import generate_checkpoint_animations
+
+    outputs = generate_checkpoint_animations(
+        results_dir=results_dir,
+        seed=seed,
+        output_format=output_format,
+        fps=fps,
+    )
+    outputs["animation_urls"] = {
+        "individual": {
+            method: "/" + path.replace("\\", "/")
+            for method, path in outputs["individual"].items()
+        },
+        "side_by_side": None if outputs["side_by_side"] is None else "/" + outputs["side_by_side"].replace("\\", "/"),
+    }
+    return jsonify(outputs)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ Simple heterogeneous crowd evacuation prototype with a local browser UI, GA opti
 
 The browser UI is now split into focused pages:
 
-- `/manual` for the evacuation simulator and the 6 movement parameters
+- `/manual` for the evacuation simulator and the 5 movement parameters
 - `/ga` for GA runs, GA hyperparameters, and editable fitness weights
 - `/comparison` for baseline comparison, charts, and side-by-side replay
 - `/experiments` for preset-driven standard and generalization experiments
@@ -55,3 +55,19 @@ Useful overrides for quick runs:
 `python experiments.py standard --population-size 8 --generations 4 --random-candidates 32 --seeds 11 29 47`
 
 Outputs are written to `results/` by default.
+
+## Run the checkpoint experiment
+
+Formal checkpoint run:
+
+`python run_checkpoint_experiment.py`
+
+Generate checkpoint plots:
+
+`python plot_checkpoint_results.py`
+
+Generate visual comparison GIFs for the saved best runs:
+
+`python animate_checkpoint_runs.py --seed 0`
+
+Outputs are written to `results/checkpoint/`. The same experiment can also be run from the browser via the `/checkpoint` tab after starting `python app.py`.

@@ -12,7 +12,8 @@ def animate_simulation(params, num_high=30, num_low=30, max_ticks=500, filename=
         num_high=num_high, 
         num_low=num_low, 
         room_size=LAYOUT_STANDARD["room_size"], 
-        exit_pos=LAYOUT_STANDARD["exit_pos"]
+        exit_pos=LAYOUT_STANDARD["exit_pos"],
+        exit_width=LAYOUT_STANDARD["exit_width"],
     )
 
     # Setup figure and axis
@@ -22,9 +23,10 @@ def animate_simulation(params, num_high=30, num_low=30, max_ticks=500, filename=
     ax.set_aspect('equal')
     ax.set_title("Evacuation Simulation")
 
-    # Exit of the figure
-    exit_marker = plt.Circle(LAYOUT_STANDARD["exit_pos"], LAYOUT_STANDARD["exit_width"] / 2, color='green', alpha=0.5)
-    ax.add_patch(exit_marker)
+    # Exit door gap on the room boundary.
+    exit_x, exit_y = LAYOUT_STANDARD["exit_pos"]
+    half_width = LAYOUT_STANDARD["exit_width"] / 2
+    ax.plot([exit_x, exit_x], [exit_y - half_width, exit_y + half_width], color='green', linewidth=4)
 
     #  Scatter plot for the two groups
     scatter_high = ax.scatter([], [], c='blue', label='High Mobility', s=20)
@@ -76,9 +78,8 @@ def animate_simulation(params, num_high=30, num_low=30, max_ticks=500, filename=
     plt.close(fig)
 
 if __name__ == "__main__":
-    # Same test parameters as before:
-    # [accel_factor, exit_threshold, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
-    test_params = [2.0, 1.0, 2.0, 3.0, 0.5, 1.0]
+    # [accel_factor, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius]
+    test_params = [2.0, 2.0, 3.0, 0.5, 1.0]
     
     # Create an absolute path in your current folder
     save_path = os.path.abspath("test_evacuation.gif")

@@ -13,6 +13,7 @@ def test_simulation():
         num_low=DEFAULT_SIMULATION_SETTINGS["num_low"],
         room_size=layout["room_size"],
         exit_pos=layout["exit_pos"],
+        exit_width=layout["exit_width"],
         max_ticks=5000,
         dt=DEFAULT_SIMULATION_SETTINGS["dt"],
         seed=DEFAULT_SIMULATION_SETTINGS["seed"],

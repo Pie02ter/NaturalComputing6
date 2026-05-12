@@ -190,17 +190,7 @@
     targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
     targetCtx.fillStyle = "#f8fafc";
     targetCtx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-    targetCtx.strokeStyle = "#334155";
-    targetCtx.lineWidth = 2;
-    targetCtx.strokeRect(offsetX, offsetY, roomWidth * scale, roomHeight * scale);
-
-    const exitX = offsetX + result.exit_pos[0] * scale;
-    const exitY = offsetY + (roomHeight - result.exit_pos[1]) * scale;
-    const exitRadius = Math.max(4, result.exit_width * scale * 0.5);
-    targetCtx.beginPath();
-    targetCtx.fillStyle = "#16a34a";
-    targetCtx.arc(exitX, exitY, exitRadius, 0, Math.PI * 2);
-    targetCtx.fill();
+    Common.drawRoomWithDoor(targetCtx, result, scale, offsetX, offsetY);
 
     frame.positions.forEach((position, index) => {
       if (!frame.active[index]) {
@@ -249,6 +239,91 @@
       handle = requestAnimationFrame(render);
     }
     return { play, stop };
+  };
+
+  Common.inferExitSide = function inferExitSide(result) {
+    const roomWidth = result.room_size[0];
+    const roomHeight = result.room_size[1];
+    const [exitX, exitY] = result.exit_pos;
+    const distances = {
+      left: Math.abs(exitX),
+      right: Math.abs(roomWidth - exitX),
+      bottom: Math.abs(exitY),
+      top: Math.abs(roomHeight - exitY),
+    };
+    return Object.entries(distances).sort((a, b) => a[1] - b[1])[0][0];
+  };
+
+  Common.drawRoomWithDoor = function drawRoomWithDoor(targetCtx, result, scale, offsetX, offsetY) {
+    const roomWidth = result.room_size[0];
+    const roomHeight = result.room_size[1];
+    const [exitX, exitY] = result.exit_pos;
+    const exitWidth = result.exit_width || 0.2;
+    const halfWidth = exitWidth * 0.5;
+    const exitSide = result.exit_side || Common.inferExitSide(result);
+    const sx = (x) => offsetX + x * scale;
+    const sy = (y) => offsetY + (roomHeight - y) * scale;
+
+    function segment(x1, y1, x2, y2, color, width) {
+      targetCtx.beginPath();
+      targetCtx.strokeStyle = color;
+      targetCtx.lineWidth = width;
+      targetCtx.lineCap = "round";
+      targetCtx.moveTo(sx(x1), sy(y1));
+      targetCtx.lineTo(sx(x2), sy(y2));
+      targetCtx.stroke();
+    }
+
+    function wall(x1, y1, x2, y2) {
+      segment(x1, y1, x2, y2, "#334155", 2);
+    }
+
+    function door(x1, y1, x2, y2) {
+      segment(x1, y1, x2, y2, "#16a34a", Math.max(4, exitWidth * scale));
+    }
+
+    if (exitSide === "right") {
+      const start = Math.max(0, exitY - halfWidth);
+      const end = Math.min(roomHeight, exitY + halfWidth);
+      wall(0, 0, roomWidth, 0);
+      wall(0, roomHeight, roomWidth, roomHeight);
+      wall(0, 0, 0, roomHeight);
+      wall(roomWidth, 0, roomWidth, start);
+      wall(roomWidth, end, roomWidth, roomHeight);
+      door(roomWidth, start, roomWidth, end);
+      return;
+    }
+    if (exitSide === "left") {
+      const start = Math.max(0, exitY - halfWidth);
+      const end = Math.min(roomHeight, exitY + halfWidth);
+      wall(0, 0, roomWidth, 0);
+      wall(0, roomHeight, roomWidth, roomHeight);
+      wall(roomWidth, 0, roomWidth, roomHeight);
+      wall(0, 0, 0, start);
+      wall(0, end, 0, roomHeight);
+      door(0, start, 0, end);
+      return;
+    }
+    if (exitSide === "top") {
+      const start = Math.max(0, exitX - halfWidth);
+      const end = Math.min(roomWidth, exitX + halfWidth);
+      wall(0, 0, roomWidth, 0);
+      wall(0, 0, 0, roomHeight);
+      wall(roomWidth, 0, roomWidth, roomHeight);
+      wall(0, roomHeight, start, roomHeight);
+      wall(end, roomHeight, roomWidth, roomHeight);
+      door(start, roomHeight, end, roomHeight);
+      return;
+    }
+
+    const start = Math.max(0, exitX - halfWidth);
+    const end = Math.min(roomWidth, exitX + halfWidth);
+    wall(0, roomHeight, roomWidth, roomHeight);
+    wall(0, 0, 0, roomHeight);
+    wall(roomWidth, 0, roomWidth, roomHeight);
+    wall(0, 0, start, 0);
+    wall(end, 0, roomWidth, 0);
+    door(start, 0, end, 0);
   };
 
   Common.playSynchronizedResults = function playSynchronizedResults(entries) {

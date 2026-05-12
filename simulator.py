@@ -2,10 +2,12 @@ import numpy as np
 
 
 class EvacuationModel:
-    def __init__(self, num_high, num_low, room_size=(20.0, 20.0), exit_pos=(10.0, 20.0), rng=None):
+    def __init__(self, num_high, num_low, room_size=(20.0, 20.0), exit_pos=(10.0, 20.0), exit_width=0.2, rng=None):
         self.num_agents = num_high + num_low
         self.room_size = np.array(room_size, dtype=float)
         self.exit_pos = np.array(exit_pos, dtype=float)
+        self.exit_width = float(exit_width)
+        self.exit_side = self._infer_exit_side()
         self.rng = rng if rng is not None else np.random.default_rng()
 
         # Random starting positions in the lower half of the room.
@@ -16,6 +18,47 @@ class EvacuationModel:
         self.types = np.array([1] * num_high + [0] * num_low)
         self.max_speeds = np.where(self.types == 1, 1.5, 0.5)
         self.active = np.ones(self.num_agents, dtype=bool)
+
+    def _infer_exit_side(self):
+        distances = {
+            "left": abs(self.exit_pos[0]),
+            "right": abs(self.room_size[0] - self.exit_pos[0]),
+            "bottom": abs(self.exit_pos[1]),
+            "top": abs(self.room_size[1] - self.exit_pos[1]),
+        }
+        return min(distances, key=distances.get)
+
+    def _door_mask(self, pos, side=None):
+        side = self.exit_side if side is None else side
+        half_width = self.exit_width * 0.5
+        if side in ("left", "right"):
+            return np.abs(pos[:, 1] - self.exit_pos[1]) <= half_width
+        return np.abs(pos[:, 0] - self.exit_pos[0]) <= half_width
+
+    def _evacuation_mask(self, pos):
+        in_door = self._door_mask(pos)
+        if self.exit_side == "left":
+            return (pos[:, 0] <= 0.0) & in_door
+        if self.exit_side == "right":
+            return (pos[:, 0] >= self.room_size[0]) & in_door
+        if self.exit_side == "bottom":
+            return (pos[:, 1] <= 0.0) & in_door
+        return (pos[:, 1] >= self.room_size[1]) & in_door
+
+    def _keep_inside_closed_walls(self, pos, vel):
+        left = pos[:, 0] < 0.0
+        right = pos[:, 0] > self.room_size[0]
+        bottom = pos[:, 1] < 0.0
+        top = pos[:, 1] > self.room_size[1]
+
+        pos[left, 0] = 0.0
+        vel[left, 0] = np.maximum(0.0, vel[left, 0])
+        pos[right, 0] = self.room_size[0]
+        vel[right, 0] = np.minimum(0.0, vel[right, 0])
+        pos[bottom, 1] = 0.0
+        vel[bottom, 1] = np.maximum(0.0, vel[bottom, 1])
+        pos[top, 1] = self.room_size[1]
+        vel[top, 1] = np.minimum(0.0, vel[top, 1])
 
     def pair_wise_distances(self):
         """Return pairwise direction vectors and distances between active agents."""
@@ -51,7 +94,7 @@ class EvacuationModel:
         }
 
     def step(self, params, dt=0.1):
-        accel_factor, exit_threshold, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius = params
+        accel_factor, agent_rep_weight, agent_radius, wall_rep_weight, wall_radius = params
 
         active_mask = self.active
         if not np.any(active_mask):
@@ -81,10 +124,20 @@ class EvacuationModel:
         dist_bottom = pos[:, 1]
         dist_top = self.room_size[1] - pos[:, 1]
 
+        door_mask = self._door_mask(pos)
         in_range_left = dist_left < wall_radius
         in_range_right = dist_right < wall_radius
         in_range_bottom = dist_bottom < wall_radius
         in_range_top = dist_top < wall_radius
+
+        if self.exit_side == "left":
+            in_range_left &= ~door_mask
+        elif self.exit_side == "right":
+            in_range_right &= ~door_mask
+        elif self.exit_side == "bottom":
+            in_range_bottom &= ~door_mask
+        elif self.exit_side == "top":
+            in_range_top &= ~door_mask
 
         wall_forces[in_range_left, 0] += wall_rep_weight / (dist_left[in_range_left] ** 2 + 1e-6)
         wall_forces[in_range_right, 0] -= wall_rep_weight / (dist_right[in_range_right] ** 2 + 1e-6)
@@ -99,11 +152,17 @@ class EvacuationModel:
         vel *= speed_factors[:, np.newaxis]
 
         pos += vel * dt
+        evacuated = self._evacuation_mask(pos)
+        if np.any(~evacuated):
+            remaining_pos = pos[~evacuated]
+            remaining_vel = vel[~evacuated]
+            self._keep_inside_closed_walls(remaining_pos, remaining_vel)
+            pos[~evacuated] = remaining_pos
+            vel[~evacuated] = remaining_vel
+
         self.positions[active_mask] = pos
         self.velocities[active_mask] = vel
 
-        dist_to_exit = np.linalg.norm(self.exit_pos - pos, axis=1)
-        evacuated = dist_to_exit < exit_threshold
         global_active_index = np.nonzero(active_mask)[0]
         self.active[global_active_index[evacuated]] = False
         return True
@@ -123,6 +182,7 @@ def run_simulation(
     num_low=10,
     room_size=(20.0, 20.0),
     exit_pos=(10.0, 20.0),
+    exit_width=0.2,
     max_ticks=500,
     dt=0.1,
     seed=None,
@@ -137,6 +197,7 @@ def run_simulation(
         num_low=num_low,
         room_size=room_size,
         exit_pos=exit_pos,
+        exit_width=exit_width,
         rng=rng,
     )
 
@@ -192,5 +253,8 @@ def run_simulation(
         "frames": frames,
         "room_size": [float(room_size[0]), float(room_size[1])],
         "exit_pos": [float(exit_pos[0]), float(exit_pos[1])],
+        "exit_width": float(exit_width),
+        "exit_side": model.exit_side,
+        "dt": float(dt),
     }
         
