@@ -1,73 +1,141 @@
-# NaturalComputing6
+# Heterogeneous Crowd Evacuation Optimization
 
-Simple heterogeneous crowd evacuation prototype with a local browser UI, GA optimization, method comparison, and experiment presets.
+This project studies whether a real-coded genetic algorithm can tune local movement-rule parameters for a heterogeneous crowd evacuation model. The core code is independent from the browser interface: scripts and the WebUI both call the same `src/crowd_evac` package.
 
-## Run the browser simulation
+## Repository Structure
 
-1. Start the local server:
-   `python app.py`
-2. Open:
-   `http://127.0.0.1:5000`
+```text
+configs/                 JSON experiment configurations
+scripts/                 command-line entry points
+src/crowd_evac/          simulator, fitness, baselines, GA, experiments, visualization
+webapp/                  optional Flask UI for interactive exploration
+results/                 generated experiment outputs
+reports/                 optional report figures/PDFs
+```
 
-The browser UI is now split into focused pages:
+The code-only hand-in can exclude `webapp/`, `results/`, and `reports/` unless generated artifacts are requested.
 
-- `/manual` for the evacuation simulator and the 5 movement parameters
-- `/ga` for GA runs, GA hyperparameters, and editable fitness weights
-- `/comparison` for baseline comparison, charts, and side-by-side replay
-- `/experiments` for preset-driven standard and generalization experiments
+## Installation
 
-The root page `/` acts as a navigation hub.
+Install dependencies from the project root:
 
-## Browser Features
+```bash
+pip install -r requirements.txt
+```
 
-- manual simulation with replay and evacuation metrics
-- editable fitness weights for time, collisions, congestion, fairness, and incomplete evacuation penalties
-- GA convergence visualization and generation replay
-- baseline comparison across default, two heuristics, random search, and GA
-- experiment presets that can be loaded and then modified before running
+Optional editable install:
 
-## Run the terminal smoke test
+```bash
+pip install -e .
+```
 
-`python test_run.py`
+## Run The Main Experiment
 
-## Current scope
+The first formal experiment compares the fixed default, two heuristics, 600-sample random search, and a GA with population 24 for 25 generations. It uses the standard room, 30 high-mobility agents, 10 low-mobility agents, and seeds `[11, 29, 47]`.
 
-- Python simulation backend
-- Flask local server
-- Multi-page HTML/JS browser controls
-- Canvas-based replay of a simulation run
-- Configurable fitness weighting
-- Baseline and GA experiment runner
-- Basic metrics for evacuation time, near-collisions, congestion, and group fairness
+```bash
+python scripts/run_experiment.py --config configs/standard_baseline.json --out results/standard_baseline --make-plots --make-animations
+```
 
-## Run optimization experiments
+For a fast sanity check:
 
-Standard comparison:
+```bash
+python scripts/run_experiment.py --config configs/quick_debug.json --out results/quick_debug --make-plots --quick
+```
 
-`python experiments.py standard`
+## Output Format
 
-Generalization suite:
+Each standardized run writes:
 
-`python experiments.py generalization`
+```text
+results/<run_name>/
+├── config.json
+├── best_runs.json             original full run summary
+├── evaluations.csv            all candidate evaluations
+├── summary.csv                compact method comparison
+├── summary.json               compact machine-readable summary
+├── ga_convergence.csv
+├── plots/
+│   ├── fitness_comparison.png
+│   ├── metric_breakdown.png
+│   ├── ga_convergence.png
+│   ├── efficiency_fairness_tradeoff.png
+│   └── parameter_comparison.png
+└── animations/
+    ├── default.gif
+    ├── heuristic_1.gif
+    ├── heuristic_2.gif
+    ├── random_search.gif
+    ├── ga.gif
+    └── method_comparison.gif
+```
 
-Useful overrides for quick runs:
+Plots and animations can be regenerated without rerunning the optimization:
 
-`python experiments.py standard --population-size 8 --generations 4 --random-candidates 32 --seeds 11 29 47`
+```bash
+python scripts/make_plots.py results/standard_baseline
+python scripts/make_animations.py results/standard_baseline --seed 11
+```
 
-Outputs are written to `results/` by default.
+## Experiment Configs
 
-## Run the checkpoint experiment
+Use JSON files in `configs/` to define reproducible experiments.
 
-Formal checkpoint run:
+Available configs:
 
-`python run_checkpoint_experiment.py`
+- `standard_baseline.json`: main first experiment for the report.
+- `quick_debug.json`: tiny run for testing the pipeline.
+- `generalization.json`: train on standard setup and evaluate best parameters on extra layouts/densities.
+- `fairness_ablation.json`: standardized replacement for the old checkpoint fairness/no-fairness idea; change `fitness_weights.fairness` and rerun into separate result folders.
 
-Generate checkpoint plots:
+## WebUI
 
-`python plot_checkpoint_results.py`
+The WebUI is only for interactive exploration. It is not required for the code hand-in.
 
-Generate visual comparison GIFs for the saved best runs:
+Start it with:
 
-`python animate_checkpoint_runs.py --seed 0`
+```bash
+python webapp/app.py
+```
 
-Outputs are written to `results/checkpoint/`. The same experiment can also be run from the browser via the `/checkpoint` tab after starting `python app.py`.
+Then open:
+
+```text
+http://127.0.0.1:5000
+```
+
+Pages:
+
+- `/manual`: run one simulation with chosen parameters.
+- `/ga`: run a GA interactively.
+- `/comparison`: compare default, heuristics, random search, and GA.
+- `/experiments`: run preset-style standard/generalization experiments from the browser.
+
+The old checkpoint page was removed. Its useful role is covered by standardized configs and visualization scripts.
+
+## Smoke Test
+
+```bash
+python scripts/smoke_test.py
+```
+
+This checks that the default GA genome expands to the default full parameter vector and that the simulator completes a default evacuation.
+
+## Extending The Project
+
+To add a new experiment:
+
+1. Add a JSON file in `configs/`.
+2. Run it with `scripts/run_experiment.py`.
+3. Reuse `scripts/make_plots.py` and `scripts/make_animations.py` for standardized figures.
+4. If a new experiment type needs custom orchestration, add it under `src/crowd_evac/experiments.py`, not in the WebUI.
+
+The intended dependency direction is:
+
+```text
+scripts/  ─────┐
+               ├──> src/crowd_evac/
+webapp/   ─────┘
+```
+
+`src/crowd_evac/` should never import from `webapp/`.
