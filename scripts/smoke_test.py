@@ -7,7 +7,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from crowd_evac.config import DEFAULT_GA_SEED_VECTOR, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, LAYOUTS, sim_kwargs_from_layout
+from crowd_evac.config import DEFAULT_GA_SEED_VECTOR, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, HOSPITAL_DEFAULT_PARAMS, LAYOUTS, sim_kwargs_from_layout
 from crowd_evac.ga import evaluate_candidate, merge_active_to_full
 from crowd_evac.simulator import run_simulation
 
@@ -21,12 +21,12 @@ def test_ga_merge_matches_default():
     assert abs(a["total_time"] - b["total_time"]) < 1e-9
 
 
-def test_simulation(layout_name=None, num_high=None, num_low=None, max_ticks=5000):
+def test_simulation(layout_name=None, num_high=None, num_low=None, max_ticks=5000, params=None):
     layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
     layout = LAYOUTS[layout_name]
     start_time = time.time()
     result = run_simulation(
-        params=DEFAULT_PARAMS,
+        params=params or DEFAULT_PARAMS,
         num_high=num_high or DEFAULT_SIMULATION_SETTINGS["num_high"],
         num_low=num_low or DEFAULT_SIMULATION_SETTINGS["num_low"],
         max_ticks=max_ticks,
@@ -45,5 +45,5 @@ def test_simulation(layout_name=None, num_high=None, num_low=None, max_ticks=500
 if __name__ == "__main__":
     test_ga_merge_matches_default()
     test_simulation()
-    test_simulation(layout_name="hospital_corridor", num_high=40, num_low=15, max_ticks=5000)
+    test_simulation(layout_name="hospital_corridor", num_high=28, num_low=12, max_ticks=5000, params=HOSPITAL_DEFAULT_PARAMS)
     print("Smoke tests passed.")

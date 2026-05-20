@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   state.config = await Common.fetchConfig();
   Common.fillScenarioControls(elements, state.config);
-  Common.buildParamControls(elements.params, state.config);
+  Common.buildParamControls(elements.params, state.config, Common.layoutMovementParams(state.config, elements.layout.value));
+  elements.layout.addEventListener("change", () => Common.applyLayoutDefaults(elements, state.config));
   Common.setStatus(elements.status, "Ready.");
 });

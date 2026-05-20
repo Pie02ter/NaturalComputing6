@@ -58,6 +58,31 @@
     elements.dt.value = values.dt;
   };
 
+  Common.layoutMovementParams = function layoutMovementParams(config, layoutName) {
+    const layout = config.layouts[layoutName];
+    if (layout && layout.default_params) {
+      return layout.default_params;
+    }
+    return config.default_params;
+  };
+
+  Common.applyLayoutDefaults = function applyLayoutDefaults(elements, config) {
+    const layoutName = elements.layout.value;
+    const layout = config.layouts[layoutName];
+    Common.buildParamControls(elements.params, config, Common.layoutMovementParams(config, layoutName));
+    if (layout && layout.recommended_settings) {
+      if (layout.recommended_settings.num_high !== undefined) {
+        elements.numHigh.value = layout.recommended_settings.num_high;
+      }
+      if (layout.recommended_settings.num_low !== undefined) {
+        elements.numLow.value = layout.recommended_settings.num_low;
+      }
+      if (layout.recommended_settings.max_ticks !== undefined) {
+        elements.maxTicks.value = layout.recommended_settings.max_ticks;
+      }
+    }
+  };
+
   Common.readScenarioPayload = function readScenarioPayload(elements) {
     return {
       layout: elements.layout.value,
@@ -243,9 +268,10 @@
       }
       const x = offsetX + position[0] * scale;
       const y = offsetY + (roomHeight - position[1]) * scale;
+      const bodyRadius = Math.max(3, (result.agent_body_radius || 0.25) * scale);
       targetCtx.beginPath();
       targetCtx.fillStyle = frame.types[index] === 1 ? "#2563eb" : "#dc2626";
-      targetCtx.arc(x, y, 4, 0, Math.PI * 2);
+      targetCtx.arc(x, y, bodyRadius, 0, Math.PI * 2);
       targetCtx.fill();
     });
 

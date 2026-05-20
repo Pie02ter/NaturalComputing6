@@ -20,60 +20,70 @@ LAYOUT_ASYMMETRIC = {
 }
 
 # Layout 4: Simplified hospital corridor network inspired by a floor evacuation plan.
+HOSPITAL_DEFAULT_PARAMS = [2.0, 1.5, 1.0, 0.5, 1.0]
+
 LAYOUT_HOSPITAL_CORRIDOR = {
-    "room_size": (40.0, 28.0),
+    "room_size": (24.0, 16.8),
+    "agent_body_radius": 0.35,
+    "near_collision_distance": 0.75,
+    "default_params": HOSPITAL_DEFAULT_PARAMS,
+    "recommended_settings": {
+        "num_high": 28,
+        "num_low": 12,
+        "max_ticks": 1000,
+    },
     "exits": [
-        {"pos": (4.0, 28.0), "width": 1.4, "side": "top"},
-        {"pos": (20.0, 28.0), "width": 1.4, "side": "top"},
-        {"pos": (40.0, 18.0), "width": 1.4, "side": "right"},
-        {"pos": (36.0, 0.0), "width": 1.4, "side": "bottom"},
+        {"pos": (2.4, 16.8), "width": 1.4, "side": "top"},
+        {"pos": (12.0, 16.8), "width": 1.4, "side": "top"},
+        {"pos": (24.0, 10.8), "width": 1.4, "side": "right"},
+        {"pos": (21.6, 0.0), "width": 1.4, "side": "bottom"},
     ],
     "internal_walls": [
-        ((8.0, 24.0), (8.0, 28.0)),
-        ((16.0, 24.0), (16.0, 26.0)),
-        ((24.0, 24.0), (24.0, 28.0)),
-        ((0.0, 24.0), (2.5, 24.0)),
-        ((5.5, 24.0), (8.0, 24.0)),
-        ((8.0, 24.0), (10.5, 24.0)),
-        ((13.5, 24.0), (16.0, 24.0)),
-        ((16.0, 24.0), (18.5, 24.0)),
-        ((21.5, 24.0), (28.0, 24.0)),
-        ((8.0, 24.0), (8.0, 25.5)),
-        ((8.0, 20.5), (8.0, 22.0)),
-        ((8.0, 4.0), (8.0, 5.5)),
-        ((8.0, 10.0), (8.0, 12.0)),
-        ((8.0, 14.0), (8.0, 20.0)),
-        ((8.0, 14.0), (13.0, 14.0)),
-        ((17.0, 14.0), (28.0, 14.0)),
-        ((8.0, 8.0), (11.5, 8.0)),
-        ((14.5, 8.0), (16.0, 8.0)),
-        ((16.0, 8.0), (18.5, 8.0)),
-        ((21.5, 8.0), (28.0, 8.0)),
-        ((16.0, 8.0), (16.0, 12.0)),
-        ((20.0, 8.0), (20.0, 12.0)),
-        ((28.0, 14.0), (28.0, 16.0)),
-        ((28.0, 20.0), (28.0, 22.0)),
-        ((28.0, 4.0), (28.0, 8.0)),
-        ((32.0, 11.0), (32.0, 14.0)),
-        ((0.0, 6.0), (3.5, 6.0)),
-        ((6.5, 6.0), (8.0, 6.0)),
-        ((8.0, 6.0), (11.5, 6.0)),
-        ((14.5, 6.0), (16.0, 6.0)),
-        ((16.0, 6.0), (18.5, 6.0)),
-        ((21.5, 6.0), (28.0, 6.0)),
+        ((4.8, 14.4), (4.8, 16.8)),
+        ((9.6, 14.4), (9.6, 15.6)),
+        ((14.4, 14.4), (14.4, 16.8)),
+        ((0.0, 14.4), (1.5, 14.4)),
+        ((3.3, 14.4), (4.8, 14.4)),
+        ((4.8, 14.4), (6.3, 14.4)),
+        ((8.1, 14.4), (9.6, 14.4)),
+        ((9.6, 14.4), (11.1, 14.4)),
+        ((12.9, 14.4), (16.8, 14.4)),
+        ((4.8, 14.4), (4.8, 15.3)),
+        ((4.8, 12.3), (4.8, 13.2)),
+        ((4.8, 2.4), (4.8, 3.3)),
+        ((4.8, 6.0), (4.8, 7.2)),
+        ((4.8, 8.4), (4.8, 12.0)),
+        ((4.8, 8.4), (7.8, 8.4)),
+        ((10.2, 8.4), (16.8, 8.4)),
+        ((4.8, 4.8), (6.9, 4.8)),
+        ((8.7, 4.8), (9.6, 4.8)),
+        ((9.6, 4.8), (11.1, 4.8)),
+        ((12.9, 4.8), (16.8, 4.8)),
+        ((9.6, 4.8), (9.6, 7.2)),
+        ((12.0, 4.8), (12.0, 7.2)),
+        ((16.8, 8.4), (16.8, 9.6)),
+        ((16.8, 12.0), (16.8, 13.2)),
+        ((16.8, 2.4), (16.8, 4.8)),
+        ((19.2, 6.6), (19.2, 8.4)),
+        ((0.0, 3.6), (2.1, 3.6)),
+        ((3.9, 3.6), (4.8, 3.6)),
+        ((4.8, 3.6), (6.9, 3.6)),
+        ((8.7, 3.6), (9.6, 3.6)),
+        ((9.6, 3.6), (11.1, 3.6)),
+        ((12.9, 3.6), (16.8, 3.6)),
     ],
     "spawn_zones": [
-        {"rect": (1.0, 25.0, 6.0, 2.5), "weight": 1.0, "exit_index": 0},
-        {"rect": (9.0, 25.0, 6.0, 2.5), "weight": 1.0, "exit_index": 1},
-        {"rect": (17.0, 25.0, 6.0, 2.5), "weight": 1.0, "exit_index": 1},
-        {"rect": (1.0, 16.0, 6.0, 6.0), "weight": 1.0, "exit_index": 0},
-        {"rect": (1.0, 7.0, 6.0, 6.0), "weight": 1.0, "exit_index": 0},
-        {"rect": (10.0, 16.0, 16.0, 5.0), "weight": 1.0, "exit_index": 1},
-        {"rect": (9.0, 9.0, 6.0, 2.5), "weight": 1.0, "exit_index": 1},
-        {"rect": (21.0, 9.0, 6.0, 2.5), "weight": 1.0, "exit_index": 2},
-        {"rect": (1.0, 1.0, 8.0, 4.0), "weight": 1.0, "exit_index": 3},
-        {"rect": (11.0, 1.0, 8.0, 4.0), "weight": 1.0, "exit_index": 3},
-        {"rect": (33.0, 2.0, 6.0, 10.0), "weight": 1.0, "exit_index": 2},
+        {"rect": (0.6, 15.0, 3.6, 1.5), "weight": 1.0, "exit_index": 0},
+        {"rect": (5.4, 15.0, 3.6, 1.5), "weight": 1.0, "exit_index": 1},
+        {"rect": (10.2, 15.0, 3.6, 1.5), "weight": 1.0, "exit_index": 1},
+        {"rect": (0.6, 9.6, 3.6, 3.6), "weight": 1.0, "exit_index": 0},
+        {"rect": (0.6, 4.2, 3.6, 3.6), "weight": 1.0, "exit_index": 0},
+        {"rect": (6.0, 9.6, 9.6, 3.0), "weight": 1.0, "exit_index": 1},
+        {"rect": (5.4, 5.4, 3.6, 1.5), "weight": 1.0, "exit_index": 1},
+        {"rect": (12.6, 5.4, 3.6, 1.5), "weight": 1.0, "exit_index": 2},
+        {"rect": (0.6, 0.6, 4.8, 2.4), "weight": 1.0, "exit_index": 3},
+        {"rect": (6.6, 0.6, 4.8, 2.4), "weight": 1.0, "exit_index": 3},
+        {"rect": (19.8, 1.2, 3.6, 6.0), "weight": 1.0, "exit_index": 2},
     ],
 }
 
@@ -96,7 +106,15 @@ def sim_kwargs_from_layout(layout):
         kwargs["internal_walls"] = layout["internal_walls"]
     if "spawn_zones" in layout:
         kwargs["spawn_zones"] = layout["spawn_zones"]
+    if "agent_body_radius" in layout:
+        kwargs["agent_body_radius"] = layout["agent_body_radius"]
+    if "near_collision_distance" in layout:
+        kwargs["near_collision_distance"] = layout["near_collision_distance"]
     return kwargs
+
+
+def layout_default_params(layout, fallback=None):
+    return list(layout.get("default_params", fallback or DEFAULT_PARAMS))
 
 
 def layout_payload(layout):
@@ -128,6 +146,14 @@ def layout_payload(layout):
             }
             for zone in layout["spawn_zones"]
         ]
+    if "agent_body_radius" in layout:
+        payload["agent_body_radius"] = layout["agent_body_radius"]
+    if "near_collision_distance" in layout:
+        payload["near_collision_distance"] = layout["near_collision_distance"]
+    if "default_params" in layout:
+        payload["default_params"] = list(layout["default_params"])
+    if "recommended_settings" in layout:
+        payload["recommended_settings"] = dict(layout["recommended_settings"])
     return payload
 
 PARAM_NAMES = [

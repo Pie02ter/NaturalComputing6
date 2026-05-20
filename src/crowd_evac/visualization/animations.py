@@ -145,10 +145,28 @@ def _draw_frame(ax, result, frame):
 
     high_mask = active & (types == 1)
     low_mask = active & (types == 0)
+    body_radius = float(result.get("agent_body_radius", 0.25))
+    marker_area = max(16.0, (body_radius * 24.0) ** 2)
     if np.any(high_mask):
-        ax.scatter(positions[high_mask, 0], positions[high_mask, 1], c="#2563eb", s=24, label="High", edgecolors="white", linewidths=0.3)
+        ax.scatter(
+            positions[high_mask, 0],
+            positions[high_mask, 1],
+            c="#2563eb",
+            s=marker_area,
+            label="High",
+            edgecolors="white",
+            linewidths=0.3,
+        )
     if np.any(low_mask):
-        ax.scatter(positions[low_mask, 0], positions[low_mask, 1], c="#dc2626", s=24, label="Low", edgecolors="white", linewidths=0.3)
+        ax.scatter(
+            positions[low_mask, 0],
+            positions[low_mask, 1],
+            c="#dc2626",
+            s=marker_area,
+            label="Low",
+            edgecolors="white",
+            linewidths=0.3,
+        )
     if np.any(high_mask) or np.any(low_mask):
         ax.legend(loc="upper left", fontsize=7, framealpha=0.9)
 

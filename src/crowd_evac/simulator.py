@@ -85,9 +85,11 @@ class EvacuationModel:
         exits=None,
         internal_walls=None,
         spawn_zones=None,
+        agent_body_radius=0.0,
         rng=None,
     ):
         self.num_agents = num_high + num_low
+        self.agent_body_radius = float(agent_body_radius)
         self.room_size = np.array(room_size, dtype=float)
         self.exits = _normalize_exits(self.room_size, exit_pos=exit_pos, exit_width=exit_width, exits=exits)
         self.exit_pos = self.exits[0]["pos"]
@@ -132,7 +134,7 @@ class EvacuationModel:
         return positions, target_exit_indices
 
     def _sample_spawn_point_in_zone(self, zone, max_attempts=50):
-        spawn_margin = 0.25
+        spawn_margin = max(0.25, self.agent_body_radius + 0.1)
         x, y, width, height = zone["rect"]
         for _ in range(max_attempts):
             point = np.array(
@@ -212,12 +214,16 @@ class EvacuationModel:
         pos[top, 1] = self.room_size[1]
         vel[top, 1] = np.minimum(0.0, vel[top, 1])
 
+    def _effective_wall_radius(self, wall_radius):
+        return wall_radius + self.agent_body_radius
+
     def _internal_wall_forces(self, pos, wall_rep_weight, wall_radius):
         if self.internal_walls.size == 0:
             return np.zeros_like(pos)
 
         delta, dists = _point_segment_vectors(pos, self.internal_walls)
-        in_range = dists < wall_radius
+        interaction_radius = self._effective_wall_radius(wall_radius)
+        in_range = dists < interaction_radius
         safe_dists = np.where(in_range, dists, 1.0)
         repulsion = wall_rep_weight / (safe_dists**2 + 1e-6)
         repulsion *= in_range
@@ -225,6 +231,35 @@ class EvacuationModel:
         unit = delta / (dists[:, :, np.newaxis] + 1e-6)
         forces = np.sum(unit * repulsion[:, :, np.newaxis], axis=1)
         return forces
+
+    def _enforce_agent_separation(self, pos, vel, iterations=5):
+        min_dist = 2.0 * self.agent_body_radius
+        if self.agent_body_radius <= 0.0 or pos.shape[0] < 2:
+            return pos, vel
+
+        for _ in range(iterations):
+            diffs = pos[:, np.newaxis, :] - pos[np.newaxis, :, :]
+            dists = np.linalg.norm(diffs, axis=2)
+            upper = np.triu(np.ones_like(dists, dtype=bool), k=1)
+            overlap = np.maximum(0.0, min_dist - dists)
+            overlap *= upper
+
+            if not np.any(overlap):
+                break
+
+            safe_dists = np.where(overlap > 0.0, dists, 1.0)
+            unit = diffs / (safe_dists[:, :, np.newaxis] + 1e-6)
+            pair_correction = unit * overlap[:, :, np.newaxis] * 0.5
+            correction = np.sum(pair_correction, axis=1) - np.sum(pair_correction, axis=0)
+            pos += correction
+
+            if np.any(correction):
+                correction_speed = np.linalg.norm(correction, axis=1, keepdims=True)
+                outward = correction / (correction_speed + 1e-6)
+                inward_speed = np.sum(vel * outward, axis=1, keepdims=True)
+                vel -= np.maximum(0.0, inward_speed) * outward
+
+        return pos, vel
 
     def pair_wise_distances(self):
         active_indices = np.where(self.active)[0]
@@ -287,15 +322,16 @@ class EvacuationModel:
         agent_forces = np.sum(force_vectors, axis=1)
 
         wall_forces = np.zeros_like(pos)
+        interaction_radius = self._effective_wall_radius(wall_radius)
         dist_left = pos[:, 0]
         dist_right = self.room_size[0] - pos[:, 0]
         dist_bottom = pos[:, 1]
         dist_top = self.room_size[1] - pos[:, 1]
 
-        in_range_left = dist_left < wall_radius
-        in_range_right = dist_right < wall_radius
-        in_range_bottom = dist_bottom < wall_radius
-        in_range_top = dist_top < wall_radius
+        in_range_left = dist_left < interaction_radius
+        in_range_right = dist_right < interaction_radius
+        in_range_bottom = dist_bottom < interaction_radius
+        in_range_top = dist_top < interaction_radius
 
         in_range_left &= ~self._combined_door_mask(pos, "left")
         in_range_right &= ~self._combined_door_mask(pos, "right")
@@ -317,12 +353,15 @@ class EvacuationModel:
 
         pos += vel * dt
         evacuated = self._evacuation_mask(pos)
-        if np.any(~evacuated):
-            remaining_pos = pos[~evacuated]
-            remaining_vel = vel[~evacuated]
+        remaining_mask = ~evacuated
+        if np.any(remaining_mask):
+            remaining_pos = pos[remaining_mask]
+            remaining_vel = vel[remaining_mask]
+            if self.agent_body_radius > 0.0:
+                remaining_pos, remaining_vel = self._enforce_agent_separation(remaining_pos, remaining_vel)
             self._keep_inside_closed_walls(remaining_pos, remaining_vel)
-            pos[~evacuated] = remaining_pos
-            vel[~evacuated] = remaining_vel
+            pos[remaining_mask] = remaining_pos
+            vel[remaining_mask] = remaining_vel
 
         self.positions[active_mask] = pos
         self.velocities[active_mask] = vel
@@ -386,6 +425,7 @@ def run_simulation(
     exits=None,
     internal_walls=None,
     spawn_zones=None,
+    agent_body_radius=0.0,
     max_ticks=500,
     dt=0.1,
     seed=None,
@@ -404,6 +444,7 @@ def run_simulation(
         exits=exits,
         internal_walls=internal_walls,
         spawn_zones=spawn_zones,
+        agent_body_radius=agent_body_radius,
         rng=rng,
     )
 
@@ -465,5 +506,6 @@ def run_simulation(
         "exits": _serialize_exits(model.exits),
         "internal_walls": _serialize_internal_walls(internal_walls),
         "spawn_zones": _serialize_spawn_zones(spawn_zones),
+        "agent_body_radius": float(agent_body_radius),
         "dt": float(dt),
     }
