@@ -299,13 +299,57 @@
     return Object.entries(distances).sort((a, b) => a[1] - b[1])[0][0];
   };
 
+  Common.resultExits = function resultExits(result) {
+    if (result.exits && result.exits.length) {
+      return result.exits;
+    }
+    return [
+      {
+        pos: result.exit_pos,
+        width: result.exit_width || 0.2,
+        side: result.exit_side || Common.inferExitSide(result),
+      },
+    ];
+  };
+
+  Common.mergeIntervals = function mergeIntervals(intervals) {
+    if (!intervals.length) {
+      return [];
+    }
+    const ordered = [...intervals].sort((a, b) => a[0] - b[0]);
+    const merged = [[ordered[0][0], ordered[0][1]]];
+    ordered.slice(1).forEach(([start, end]) => {
+      const last = merged[merged.length - 1];
+      if (start <= last[1]) {
+        last[1] = Math.max(last[1], end);
+      } else {
+        merged.push([start, end]);
+      }
+    });
+    return merged;
+  };
+
+  Common.doorIntervalsOnSide = function doorIntervalsOnSide(exits, side, roomWidth, roomHeight) {
+    const intervals = [];
+    exits.forEach((exitInfo) => {
+      if (exitInfo.side !== side) {
+        return;
+      }
+      const halfWidth = (exitInfo.width || 0.2) * 0.5;
+      const [posX, posY] = exitInfo.pos;
+      if (side === "left" || side === "right") {
+        intervals.push([Math.max(0, posY - halfWidth), Math.min(roomHeight, posY + halfWidth)]);
+      } else {
+        intervals.push([Math.max(0, posX - halfWidth), Math.min(roomWidth, posX + halfWidth)]);
+      }
+    });
+    return Common.mergeIntervals(intervals);
+  };
+
   Common.drawRoomWithDoor = function drawRoomWithDoor(targetCtx, result, scale, offsetX, offsetY) {
     const roomWidth = result.room_size[0];
     const roomHeight = result.room_size[1];
-    const [exitX, exitY] = result.exit_pos;
-    const exitWidth = result.exit_width || 0.2;
-    const halfWidth = exitWidth * 0.5;
-    const exitSide = result.exit_side || Common.inferExitSide(result);
+    const exits = Common.resultExits(result);
     const sx = (x) => offsetX + x * scale;
     const sy = (y) => offsetY + (roomHeight - y) * scale;
 
@@ -323,52 +367,70 @@
       segment(x1, y1, x2, y2, "#334155", 2);
     }
 
-    function door(x1, y1, x2, y2) {
-      segment(x1, y1, x2, y2, "#16a34a", Math.max(4, exitWidth * scale));
+    function door(x1, y1, x2, y2, width) {
+      segment(x1, y1, x2, y2, "#16a34a", Math.max(4, width * scale));
     }
 
-    if (exitSide === "right") {
-      const start = Math.max(0, exitY - halfWidth);
-      const end = Math.min(roomHeight, exitY + halfWidth);
-      wall(0, 0, roomWidth, 0);
-      wall(0, roomHeight, roomWidth, roomHeight);
-      wall(0, 0, 0, roomHeight);
-      wall(roomWidth, 0, roomWidth, start);
-      wall(roomWidth, end, roomWidth, roomHeight);
-      door(roomWidth, start, roomWidth, end);
-      return;
-    }
-    if (exitSide === "left") {
-      const start = Math.max(0, exitY - halfWidth);
-      const end = Math.min(roomHeight, exitY + halfWidth);
-      wall(0, 0, roomWidth, 0);
-      wall(0, roomHeight, roomWidth, roomHeight);
-      wall(roomWidth, 0, roomWidth, roomHeight);
-      wall(0, 0, 0, start);
-      wall(0, end, 0, roomHeight);
-      door(0, start, 0, end);
-      return;
-    }
-    if (exitSide === "top") {
-      const start = Math.max(0, exitX - halfWidth);
-      const end = Math.min(roomWidth, exitX + halfWidth);
-      wall(0, 0, roomWidth, 0);
-      wall(0, 0, 0, roomHeight);
-      wall(roomWidth, 0, roomWidth, roomHeight);
-      wall(0, roomHeight, start, roomHeight);
-      wall(end, roomHeight, roomWidth, roomHeight);
-      door(start, roomHeight, end, roomHeight);
-      return;
+    function drawSide(side, wallFn, doorFn, spanStart, spanEnd) {
+      const gaps = Common.doorIntervalsOnSide(exits, side, roomWidth, roomHeight);
+      let cursor = spanStart;
+      gaps.forEach(([gapStart, gapEnd]) => {
+        if (gapStart > cursor) {
+          wallFn(cursor, gapStart);
+        }
+        doorFn(gapStart, gapEnd);
+        cursor = gapEnd;
+      });
+      if (cursor < spanEnd) {
+        wallFn(cursor, spanEnd);
+      }
     }
 
-    const start = Math.max(0, exitX - halfWidth);
-    const end = Math.min(roomWidth, exitX + halfWidth);
-    wall(0, roomHeight, roomWidth, roomHeight);
-    wall(0, 0, 0, roomHeight);
-    wall(roomWidth, 0, roomWidth, roomHeight);
-    wall(0, 0, start, 0);
-    wall(end, 0, roomWidth, 0);
-    door(start, 0, end, 0);
+    drawSide(
+      "bottom",
+      (a, b) => wall(a, 0, b, 0),
+      (a, b) => {
+        const exitWidth = exits.find((exitInfo) => exitInfo.side === "bottom")?.width || 0.2;
+        door(a, 0, b, 0, exitWidth);
+      },
+      0,
+      roomWidth,
+    );
+    drawSide(
+      "top",
+      (a, b) => wall(a, roomHeight, b, roomHeight),
+      (a, b) => {
+        const exitWidth = exits.find((exitInfo) => exitInfo.side === "top")?.width || 0.2;
+        door(a, roomHeight, b, roomHeight, exitWidth);
+      },
+      0,
+      roomWidth,
+    );
+    drawSide(
+      "left",
+      (a, b) => wall(0, a, 0, b),
+      (a, b) => {
+        const exitWidth = exits.find((exitInfo) => exitInfo.side === "left")?.width || 0.2;
+        door(0, a, 0, b, exitWidth);
+      },
+      0,
+      roomHeight,
+    );
+    drawSide(
+      "right",
+      (a, b) => wall(roomWidth, a, roomWidth, b),
+      (a, b) => {
+        const exitWidth = exits.find((exitInfo) => exitInfo.side === "right")?.width || 0.2;
+        door(roomWidth, a, roomWidth, b, exitWidth);
+      },
+      0,
+      roomHeight,
+    );
+
+    (result.internal_walls || []).forEach((segment) => {
+      const [start, end] = segment;
+      wall(start[0], start[1], end[0], end[1]);
+    });
   };
 
   Common.playSynchronizedResults = function playSynchronizedResults(entries) {

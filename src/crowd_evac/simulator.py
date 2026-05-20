@@ -1,49 +1,201 @@
 import numpy as np
 
 
+def _normalize_exits(room_size, exit_pos=None, exit_width=None, exits=None):
+    room_size = np.array(room_size, dtype=float)
+    if exits is not None:
+        normalized = []
+        for entry in exits:
+            pos = np.array(entry["pos"], dtype=float)
+            width = float(entry["width"])
+            side = entry.get("side")
+            if side is None:
+                side = _infer_exit_side_for_pos(room_size, pos)
+            normalized.append({"pos": pos, "width": width, "side": side})
+        return normalized
+
+    if exit_pos is None:
+        raise ValueError("Either exits or exit_pos must be provided.")
+    pos = np.array(exit_pos, dtype=float)
+    width = 0.2 if exit_width is None else float(exit_width)
+    side = _infer_exit_side_for_pos(room_size, pos)
+    return [{"pos": pos, "width": width, "side": side}]
+
+
+def _infer_exit_side_for_pos(room_size, exit_pos):
+    distances = {
+        "left": abs(exit_pos[0]),
+        "right": abs(room_size[0] - exit_pos[0]),
+        "bottom": abs(exit_pos[1]),
+        "top": abs(room_size[1] - exit_pos[1]),
+    }
+    return min(distances, key=distances.get)
+
+
+def _normalize_internal_walls(internal_walls):
+    if not internal_walls:
+        return np.zeros((0, 2, 2), dtype=float)
+    segments = []
+    for segment in internal_walls:
+        start = np.array(segment[0], dtype=float)
+        end = np.array(segment[1], dtype=float)
+        segments.append([start, end])
+    return np.array(segments, dtype=float)
+
+
+def _normalize_spawn_zones(spawn_zones):
+    if not spawn_zones:
+        return None
+    normalized = []
+    for zone in spawn_zones:
+        rect = np.array(zone["rect"], dtype=float)
+        weight = float(zone.get("weight", 1.0))
+        exit_index = zone.get("exit_index")
+        normalized.append({"rect": rect, "weight": weight, "exit_index": exit_index})
+    return normalized
+
+
+def _point_segment_vectors(pos, segments):
+    """Return closest-point vectors from agents to each wall segment."""
+    if segments.size == 0:
+        return np.zeros((pos.shape[0], 0, 2), dtype=float), np.full((pos.shape[0], 0), np.inf)
+
+    start = segments[:, 0, :]
+    end = segments[:, 1, :]
+    seg_vec = end - start
+    seg_len_sq = np.sum(seg_vec**2, axis=1)
+    seg_len_sq = np.where(seg_len_sq < 1e-9, 1e-9, seg_len_sq)
+
+    rel = pos[:, np.newaxis, :] - start[np.newaxis, :, :]
+    t = np.clip(np.sum(rel * seg_vec[np.newaxis, :, :], axis=2) / seg_len_sq[np.newaxis, :], 0.0, 1.0)
+    closest = start[np.newaxis, :, :] + t[:, :, np.newaxis] * seg_vec[np.newaxis, :, :]
+    delta = pos[:, np.newaxis, :] - closest
+    dists = np.linalg.norm(delta, axis=2)
+    return delta, dists
+
+
 class EvacuationModel:
-    def __init__(self, num_high, num_low, room_size=(20.0, 20.0), exit_pos=(10.0, 20.0), exit_width=0.2, rng=None):
+    def __init__(
+        self,
+        num_high,
+        num_low,
+        room_size=(20.0, 20.0),
+        exit_pos=(10.0, 20.0),
+        exit_width=0.2,
+        exits=None,
+        internal_walls=None,
+        spawn_zones=None,
+        rng=None,
+    ):
         self.num_agents = num_high + num_low
         self.room_size = np.array(room_size, dtype=float)
-        self.exit_pos = np.array(exit_pos, dtype=float)
-        self.exit_width = float(exit_width)
-        self.exit_side = self._infer_exit_side()
+        self.exits = _normalize_exits(self.room_size, exit_pos=exit_pos, exit_width=exit_width, exits=exits)
+        self.exit_pos = self.exits[0]["pos"]
+        self.exit_width = self.exits[0]["width"]
+        self.exit_side = self.exits[0]["side"]
+        self.internal_walls = _normalize_internal_walls(internal_walls)
+        self.spawn_zones = _normalize_spawn_zones(spawn_zones)
         self.rng = rng if rng is not None else np.random.default_rng()
 
-        # Random starting positions in the lower half of the room.
-        self.positions = self.rng.random((self.num_agents, 2)) * [self.room_size[0], self.room_size[1] / 2]
+        self.positions, self.target_exit_indices = self._sample_initial_positions()
         self.velocities = np.zeros((self.num_agents, 2), dtype=float)
 
-        # Agents have heterogenous traits: 1 for high mobility, 0 for low mobility.
         self.types = np.array([1] * num_high + [0] * num_low)
         self.max_speeds = np.where(self.types == 1, 1.5, 0.5)
         self.active = np.ones(self.num_agents, dtype=bool)
 
-    def _infer_exit_side(self):
-        distances = {
-            "left": abs(self.exit_pos[0]),
-            "right": abs(self.room_size[0] - self.exit_pos[0]),
-            "bottom": abs(self.exit_pos[1]),
-            "top": abs(self.room_size[1] - self.exit_pos[1]),
-        }
-        return min(distances, key=distances.get)
+    def _sample_initial_positions(self):
+        if self.spawn_zones is None:
+            positions = self.rng.random((self.num_agents, 2)) * [self.room_size[0], self.room_size[1] / 2]
+            return positions, None
 
-    def _door_mask(self, pos, side=None):
-        side = self.exit_side if side is None else side
-        half_width = self.exit_width * 0.5
+        weights = np.array([zone["weight"] for zone in self.spawn_zones], dtype=float)
+        weights /= weights.sum()
+        positions = np.zeros((self.num_agents, 2), dtype=float)
+        target_exit_indices = np.zeros(self.num_agents, dtype=int)
+        for index in range(self.num_agents):
+            zone_index = int(self.rng.choice(len(self.spawn_zones), p=weights))
+            zone = self.spawn_zones[zone_index]
+            positions[index] = self._sample_spawn_point_in_zone(zone)
+            exit_index = zone.get("exit_index")
+            if exit_index is None:
+                exit_index = int(
+                    np.argmin(
+                        np.linalg.norm(
+                            np.array([exit_info["pos"] for exit_info in self.exits])[np.newaxis, :, :]
+                            - positions[index][np.newaxis, np.newaxis, :],
+                            axis=2,
+                        )[0]
+                    )
+                )
+            target_exit_indices[index] = int(exit_index)
+        return positions, target_exit_indices
+
+    def _sample_spawn_point_in_zone(self, zone, max_attempts=50):
+        spawn_margin = 0.25
+        x, y, width, height = zone["rect"]
+        for _ in range(max_attempts):
+            point = np.array(
+                [
+                    x + self.rng.random() * width,
+                    y + self.rng.random() * height,
+                ],
+                dtype=float,
+            )
+            if not self._point_too_close_to_internal_walls(point, spawn_margin):
+                return point
+        return np.array([x + width * 0.5, y + height * 0.5], dtype=float)
+
+    def _point_too_close_to_internal_walls(self, point, threshold):
+        if self.internal_walls.size == 0:
+            return False
+        _, dists = _point_segment_vectors(point[np.newaxis, :], self.internal_walls)
+        return bool(np.any(dists[0] < threshold))
+
+    def _door_mask_for_exit(self, pos, exit_info):
+        half_width = exit_info["width"] * 0.5
+        exit_pos = exit_info["pos"]
+        side = exit_info["side"]
         if side in ("left", "right"):
-            return np.abs(pos[:, 1] - self.exit_pos[1]) <= half_width
-        return np.abs(pos[:, 0] - self.exit_pos[0]) <= half_width
+            return np.abs(pos[:, 1] - exit_pos[1]) <= half_width
+        return np.abs(pos[:, 0] - exit_pos[0]) <= half_width
 
-    def _evacuation_mask(self, pos):
-        in_door = self._door_mask(pos)
-        if self.exit_side == "left":
-            return (pos[:, 0] <= 0.0) & in_door
-        if self.exit_side == "right":
-            return (pos[:, 0] >= self.room_size[0]) & in_door
-        if self.exit_side == "bottom":
-            return (pos[:, 1] <= 0.0) & in_door
-        return (pos[:, 1] >= self.room_size[1]) & in_door
+    def _combined_door_mask(self, pos, side):
+        mask = np.zeros(pos.shape[0], dtype=bool)
+        for exit_info in self.exits:
+            if exit_info["side"] == side:
+                mask |= self._door_mask_for_exit(pos, exit_info)
+        return mask
+
+    def _evacuation_mask(self, pos, capture=0.2):
+        evacuated = np.zeros(pos.shape[0], dtype=bool)
+        for exit_info in self.exits:
+            in_door = self._door_mask_for_exit(pos, exit_info)
+            side = exit_info["side"]
+            if side == "left":
+                evacuated |= (pos[:, 0] <= capture) & in_door
+            elif side == "right":
+                evacuated |= (pos[:, 0] >= self.room_size[0] - capture) & in_door
+            elif side == "bottom":
+                evacuated |= (pos[:, 1] <= capture) & in_door
+            else:
+                evacuated |= (pos[:, 1] >= self.room_size[1] - capture) & in_door
+        return evacuated
+
+    def _target_positions(self, pos, active_mask):
+        if self.target_exit_indices is None:
+            return self._nearest_exit_targets(pos)
+
+        exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
+        active_exit_indices = self.target_exit_indices[active_mask]
+        return exit_positions[active_exit_indices]
+
+    def _nearest_exit_targets(self, pos):
+        exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
+        deltas = exit_positions[np.newaxis, :, :] - pos[:, np.newaxis, :]
+        dists = np.linalg.norm(deltas, axis=2)
+        nearest = np.argmin(dists, axis=1)
+        return exit_positions[nearest]
 
     def _keep_inside_closed_walls(self, pos, vel):
         left = pos[:, 0] < 0.0
@@ -60,8 +212,21 @@ class EvacuationModel:
         pos[top, 1] = self.room_size[1]
         vel[top, 1] = np.minimum(0.0, vel[top, 1])
 
+    def _internal_wall_forces(self, pos, wall_rep_weight, wall_radius):
+        if self.internal_walls.size == 0:
+            return np.zeros_like(pos)
+
+        delta, dists = _point_segment_vectors(pos, self.internal_walls)
+        in_range = dists < wall_radius
+        safe_dists = np.where(in_range, dists, 1.0)
+        repulsion = wall_rep_weight / (safe_dists**2 + 1e-6)
+        repulsion *= in_range
+
+        unit = delta / (dists[:, :, np.newaxis] + 1e-6)
+        forces = np.sum(unit * repulsion[:, :, np.newaxis], axis=1)
+        return forces
+
     def pair_wise_distances(self):
-        """Return pairwise direction vectors and distances between active agents."""
         active_indices = np.where(self.active)[0]
         pos = self.positions[active_indices]
 
@@ -82,8 +247,10 @@ class EvacuationModel:
             return 0
 
         pos = self.positions[self.active]
-        dist_to_exit = np.linalg.norm(self.exit_pos - pos, axis=1)
-        return int(np.count_nonzero(dist_to_exit < threshold))
+        exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
+        dists = np.linalg.norm(exit_positions[np.newaxis, :, :] - pos[:, np.newaxis, :], axis=2)
+        min_dists = np.min(dists, axis=1)
+        return int(np.count_nonzero(min_dists < threshold))
 
     def snapshot(self, tick):
         return {
@@ -104,7 +271,8 @@ class EvacuationModel:
         vel = self.velocities[active_mask]
         max_speeds = self.max_speeds[active_mask]
 
-        directions = self.exit_pos - pos
+        target_positions = self._target_positions(pos, active_mask)
+        directions = target_positions - pos
         distances = np.linalg.norm(directions, axis=1, keepdims=True)
         desired_direction = directions / (distances + 1e-6)
 
@@ -124,25 +292,21 @@ class EvacuationModel:
         dist_bottom = pos[:, 1]
         dist_top = self.room_size[1] - pos[:, 1]
 
-        door_mask = self._door_mask(pos)
         in_range_left = dist_left < wall_radius
         in_range_right = dist_right < wall_radius
         in_range_bottom = dist_bottom < wall_radius
         in_range_top = dist_top < wall_radius
 
-        if self.exit_side == "left":
-            in_range_left &= ~door_mask
-        elif self.exit_side == "right":
-            in_range_right &= ~door_mask
-        elif self.exit_side == "bottom":
-            in_range_bottom &= ~door_mask
-        elif self.exit_side == "top":
-            in_range_top &= ~door_mask
+        in_range_left &= ~self._combined_door_mask(pos, "left")
+        in_range_right &= ~self._combined_door_mask(pos, "right")
+        in_range_bottom &= ~self._combined_door_mask(pos, "bottom")
+        in_range_top &= ~self._combined_door_mask(pos, "top")
 
         wall_forces[in_range_left, 0] += wall_rep_weight / (dist_left[in_range_left] ** 2 + 1e-6)
         wall_forces[in_range_right, 0] -= wall_rep_weight / (dist_right[in_range_right] ** 2 + 1e-6)
         wall_forces[in_range_bottom, 1] += wall_rep_weight / (dist_bottom[in_range_bottom] ** 2 + 1e-6)
         wall_forces[in_range_top, 1] -= wall_rep_weight / (dist_top[in_range_top] ** 2 + 1e-6)
+        wall_forces += self._internal_wall_forces(pos, wall_rep_weight, wall_radius)
 
         total_acceleration = acceleration + agent_forces + wall_forces
         vel += total_acceleration * dt
@@ -176,6 +340,42 @@ def _group_mean(values, mask):
     return float(np.mean(valid_values))
 
 
+def _serialize_exits(exits):
+    return [
+        {
+            "pos": [float(exit_info["pos"][0]), float(exit_info["pos"][1])],
+            "width": float(exit_info["width"]),
+            "side": exit_info["side"],
+        }
+        for exit_info in exits
+    ]
+
+
+def _serialize_internal_walls(internal_walls):
+    if not internal_walls:
+        return []
+    return [
+        [[float(start[0]), float(start[1])], [float(end[0]), float(end[1])]]
+        for start, end in internal_walls
+    ]
+
+
+def _serialize_spawn_zones(spawn_zones):
+    if not spawn_zones:
+        return []
+    serialized = []
+    for zone in spawn_zones:
+        rect = zone["rect"]
+        entry = {
+            "rect": [float(rect[0]), float(rect[1]), float(rect[2]), float(rect[3])],
+            "weight": float(zone.get("weight", 1.0)),
+        }
+        if zone.get("exit_index") is not None:
+            entry["exit_index"] = int(zone["exit_index"])
+        serialized.append(entry)
+    return serialized
+
+
 def run_simulation(
     params,
     num_high=30,
@@ -183,6 +383,9 @@ def run_simulation(
     room_size=(20.0, 20.0),
     exit_pos=(10.0, 20.0),
     exit_width=0.2,
+    exits=None,
+    internal_walls=None,
+    spawn_zones=None,
     max_ticks=500,
     dt=0.1,
     seed=None,
@@ -198,6 +401,9 @@ def run_simulation(
         room_size=room_size,
         exit_pos=exit_pos,
         exit_width=exit_width,
+        exits=exits,
+        internal_walls=internal_walls,
+        spawn_zones=spawn_zones,
         rng=rng,
     )
 
@@ -234,6 +440,7 @@ def run_simulation(
         fairness_gap_ticks = abs(mean_high_ticks - mean_low_ticks)
 
     completed_runs = max(1, ticks)
+    primary_exit = model.exits[0]
     return {
         "params": [float(value) for value in params],
         "ticks": int(ticks),
@@ -252,9 +459,11 @@ def run_simulation(
         "fairness_gap_time": None if fairness_gap_ticks is None else float(fairness_gap_ticks * dt),
         "frames": frames,
         "room_size": [float(room_size[0]), float(room_size[1])],
-        "exit_pos": [float(exit_pos[0]), float(exit_pos[1])],
-        "exit_width": float(exit_width),
-        "exit_side": model.exit_side,
+        "exit_pos": [float(primary_exit["pos"][0]), float(primary_exit["pos"][1])],
+        "exit_width": float(primary_exit["width"]),
+        "exit_side": primary_exit["side"],
+        "exits": _serialize_exits(model.exits),
+        "internal_walls": _serialize_internal_walls(internal_walls),
+        "spawn_zones": _serialize_spawn_zones(spawn_zones),
         "dt": float(dt),
     }
-        

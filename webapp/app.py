@@ -25,6 +25,8 @@ from crowd_evac.config import (
     LAYOUTS,
     PARAM_BOUNDS,
     PARAM_NAMES,
+    layout_payload,
+    sim_kwargs_from_layout,
 )
 from crowd_evac.experiments import run_generalization_suite, run_standard_comparison
 from crowd_evac.ga import run_ga
@@ -35,14 +37,7 @@ app = Flask(__name__, static_folder="static", static_url_path="/static")
 
 
 def _layout_payload():
-    return {
-        name: {
-            "room_size": list(layout["room_size"]),
-            "exit_pos": list(layout["exit_pos"]),
-            "exit_width": layout["exit_width"],
-        }
-        for name, layout in LAYOUTS.items()
-    }
+    return {name: layout_payload(layout) for name, layout in LAYOUTS.items()}
 
 
 def _preset_payload():
@@ -110,16 +105,15 @@ def _run_simulation_for_payload(payload):
         params=simulation["params"],
         num_high=simulation["num_high"],
         num_low=simulation["num_low"],
-        room_size=layout["room_size"],
-        exit_pos=layout["exit_pos"],
-        exit_width=layout["exit_width"],
         max_ticks=simulation["max_ticks"],
         dt=simulation["dt"],
         seed=simulation["seed"],
         frame_stride=simulation["frame_stride"],
+        **sim_kwargs_from_layout(layout),
     )
     result["layout"] = simulation["layout_name"]
-    result["exit_width"] = layout["exit_width"]
+    if "exit_width" in layout:
+        result["exit_width"] = layout["exit_width"]
     return result
 
 

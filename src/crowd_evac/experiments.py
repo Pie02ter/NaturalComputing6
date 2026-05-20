@@ -126,6 +126,7 @@ def run_generalization_suite(standard_results, seeds=None, results_dir=None, fit
     scenarios = [
         {"name": "corridor_balanced", "layout": "corridor", "num_high": 30, "num_low": 10},
         {"name": "asymmetric_balanced", "layout": "asymmetric", "num_high": 30, "num_low": 10},
+        {"name": "hospital_corridor_balanced", "layout": "hospital_corridor", "num_high": 40, "num_low": 15, "max_ticks": 800},
         {"name": "standard_lowmobility_heavy", "layout": "standard", "num_high": 20, "num_low": 20},
         {"name": "standard_high_density", "layout": "standard", "num_high": 40, "num_low": 20},
     ]

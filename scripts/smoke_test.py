@@ -7,7 +7,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from crowd_evac.config import DEFAULT_GA_SEED_VECTOR, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, LAYOUTS
+from crowd_evac.config import DEFAULT_GA_SEED_VECTOR, DEFAULT_PARAMS, DEFAULT_SIMULATION_SETTINGS, LAYOUTS, sim_kwargs_from_layout
 from crowd_evac.ga import evaluate_candidate, merge_active_to_full
 from crowd_evac.simulator import run_simulation
 
@@ -21,25 +21,29 @@ def test_ga_merge_matches_default():
     assert abs(a["total_time"] - b["total_time"]) < 1e-9
 
 
-def test_simulation():
-    layout = LAYOUTS[DEFAULT_SIMULATION_SETTINGS["layout"]]
+def test_simulation(layout_name=None, num_high=None, num_low=None, max_ticks=5000):
+    layout_name = layout_name or DEFAULT_SIMULATION_SETTINGS["layout"]
+    layout = LAYOUTS[layout_name]
     start_time = time.time()
     result = run_simulation(
         params=DEFAULT_PARAMS,
-        num_high=DEFAULT_SIMULATION_SETTINGS["num_high"],
-        num_low=DEFAULT_SIMULATION_SETTINGS["num_low"],
-        room_size=layout["room_size"],
-        exit_pos=layout["exit_pos"],
-        exit_width=layout["exit_width"],
-        max_ticks=5000,
+        num_high=num_high or DEFAULT_SIMULATION_SETTINGS["num_high"],
+        num_low=num_low or DEFAULT_SIMULATION_SETTINGS["num_low"],
+        max_ticks=max_ticks,
         dt=DEFAULT_SIMULATION_SETTINGS["dt"],
         seed=DEFAULT_SIMULATION_SETTINGS["seed"],
+        **sim_kwargs_from_layout(layout),
     )
-    print(f"all_evacuated={result['all_evacuated']} ticks={result['ticks']} remaining={result['remaining_agents']} near_collisions={result['near_collisions']} time={time.time() - start_time:.4f}s")
-    assert result["remaining_agents"] == 0
+    print(
+        f"layout={layout_name} all_evacuated={result['all_evacuated']} "
+        f"ticks={result['ticks']} remaining={result['remaining_agents']} "
+        f"near_collisions={result['near_collisions']} time={time.time() - start_time:.4f}s"
+    )
+    assert result["remaining_agents"] == 0, f"{layout_name} failed to evacuate all agents"
 
 
 if __name__ == "__main__":
     test_ga_merge_matches_default()
     test_simulation()
+    test_simulation(layout_name="hospital_corridor", num_high=40, num_low=15, max_ticks=5000)
     print("Smoke tests passed.")

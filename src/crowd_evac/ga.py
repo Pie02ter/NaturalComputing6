@@ -14,6 +14,7 @@ from .config import (
     GA_DEFAULTS,
     GA_PARAM_BOUNDS,
     LAYOUTS,
+    sim_kwargs_from_layout,
 )
 from .simulator import run_simulation
 
@@ -209,14 +210,12 @@ def evaluate_candidate(
             params=params,
             num_high=settings["num_high"],
             num_low=settings["num_low"],
-            room_size=layout["room_size"],
-            exit_pos=layout["exit_pos"],
-            exit_width=layout["exit_width"],
             max_ticks=settings["max_ticks"],
             dt=settings["dt"],
             seed=seed,
             frame_stride=settings.get("frame_stride", DEFAULT_SIMULATION_SETTINGS["frame_stride"]),
             capture_frames=False,
+            **sim_kwargs_from_layout(layout),
         )
         result["fitness"] = compute_fitness(result, weights)
         per_seed_results.append(result)

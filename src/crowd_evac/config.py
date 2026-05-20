@@ -19,11 +19,116 @@ LAYOUT_ASYMMETRIC = {
     "exit_width": 0.5,
 }
 
+# Layout 4: Simplified hospital corridor network inspired by a floor evacuation plan.
+LAYOUT_HOSPITAL_CORRIDOR = {
+    "room_size": (40.0, 28.0),
+    "exits": [
+        {"pos": (4.0, 28.0), "width": 1.4, "side": "top"},
+        {"pos": (20.0, 28.0), "width": 1.4, "side": "top"},
+        {"pos": (40.0, 18.0), "width": 1.4, "side": "right"},
+        {"pos": (36.0, 0.0), "width": 1.4, "side": "bottom"},
+    ],
+    "internal_walls": [
+        ((8.0, 24.0), (8.0, 28.0)),
+        ((16.0, 24.0), (16.0, 26.0)),
+        ((24.0, 24.0), (24.0, 28.0)),
+        ((0.0, 24.0), (2.5, 24.0)),
+        ((5.5, 24.0), (8.0, 24.0)),
+        ((8.0, 24.0), (10.5, 24.0)),
+        ((13.5, 24.0), (16.0, 24.0)),
+        ((16.0, 24.0), (18.5, 24.0)),
+        ((21.5, 24.0), (28.0, 24.0)),
+        ((8.0, 24.0), (8.0, 25.5)),
+        ((8.0, 20.5), (8.0, 22.0)),
+        ((8.0, 4.0), (8.0, 5.5)),
+        ((8.0, 10.0), (8.0, 12.0)),
+        ((8.0, 14.0), (8.0, 20.0)),
+        ((8.0, 14.0), (13.0, 14.0)),
+        ((17.0, 14.0), (28.0, 14.0)),
+        ((8.0, 8.0), (11.5, 8.0)),
+        ((14.5, 8.0), (16.0, 8.0)),
+        ((16.0, 8.0), (18.5, 8.0)),
+        ((21.5, 8.0), (28.0, 8.0)),
+        ((16.0, 8.0), (16.0, 12.0)),
+        ((20.0, 8.0), (20.0, 12.0)),
+        ((28.0, 14.0), (28.0, 16.0)),
+        ((28.0, 20.0), (28.0, 22.0)),
+        ((28.0, 4.0), (28.0, 8.0)),
+        ((32.0, 11.0), (32.0, 14.0)),
+        ((0.0, 6.0), (3.5, 6.0)),
+        ((6.5, 6.0), (8.0, 6.0)),
+        ((8.0, 6.0), (11.5, 6.0)),
+        ((14.5, 6.0), (16.0, 6.0)),
+        ((16.0, 6.0), (18.5, 6.0)),
+        ((21.5, 6.0), (28.0, 6.0)),
+    ],
+    "spawn_zones": [
+        {"rect": (1.0, 25.0, 6.0, 2.5), "weight": 1.0, "exit_index": 0},
+        {"rect": (9.0, 25.0, 6.0, 2.5), "weight": 1.0, "exit_index": 1},
+        {"rect": (17.0, 25.0, 6.0, 2.5), "weight": 1.0, "exit_index": 1},
+        {"rect": (1.0, 16.0, 6.0, 6.0), "weight": 1.0, "exit_index": 0},
+        {"rect": (1.0, 7.0, 6.0, 6.0), "weight": 1.0, "exit_index": 0},
+        {"rect": (10.0, 16.0, 16.0, 5.0), "weight": 1.0, "exit_index": 1},
+        {"rect": (9.0, 9.0, 6.0, 2.5), "weight": 1.0, "exit_index": 1},
+        {"rect": (21.0, 9.0, 6.0, 2.5), "weight": 1.0, "exit_index": 2},
+        {"rect": (1.0, 1.0, 8.0, 4.0), "weight": 1.0, "exit_index": 3},
+        {"rect": (11.0, 1.0, 8.0, 4.0), "weight": 1.0, "exit_index": 3},
+        {"rect": (33.0, 2.0, 6.0, 10.0), "weight": 1.0, "exit_index": 2},
+    ],
+}
+
 LAYOUTS = {
     "standard": LAYOUT_STANDARD,
     "corridor": LAYOUT_CORRIDOR,
     "asymmetric": LAYOUT_ASYMMETRIC,
+    "hospital_corridor": LAYOUT_HOSPITAL_CORRIDOR,
 }
+
+
+def sim_kwargs_from_layout(layout):
+    kwargs = {"room_size": layout["room_size"]}
+    if "exits" in layout:
+        kwargs["exits"] = layout["exits"]
+    else:
+        kwargs["exit_pos"] = layout["exit_pos"]
+        kwargs["exit_width"] = layout["exit_width"]
+    if "internal_walls" in layout:
+        kwargs["internal_walls"] = layout["internal_walls"]
+    if "spawn_zones" in layout:
+        kwargs["spawn_zones"] = layout["spawn_zones"]
+    return kwargs
+
+
+def layout_payload(layout):
+    payload = {
+        "room_size": list(layout["room_size"]),
+    }
+    if "exits" in layout:
+        payload["exits"] = [
+            {
+                "pos": list(exit_info["pos"]),
+                "width": exit_info["width"],
+                "side": exit_info.get("side"),
+            }
+            for exit_info in layout["exits"]
+        ]
+    else:
+        payload["exit_pos"] = list(layout["exit_pos"])
+        payload["exit_width"] = layout["exit_width"]
+    if "internal_walls" in layout:
+        payload["internal_walls"] = [
+            [list(start), list(end)] for start, end in layout["internal_walls"]
+        ]
+    if "spawn_zones" in layout:
+        payload["spawn_zones"] = [
+            {
+                "rect": list(zone["rect"]),
+                "weight": zone.get("weight", 1.0),
+                **({"exit_index": zone["exit_index"]} if "exit_index" in zone else {}),
+            }
+            for zone in layout["spawn_zones"]
+        ]
+    return payload
 
 PARAM_NAMES = [
     "accel_factor",
