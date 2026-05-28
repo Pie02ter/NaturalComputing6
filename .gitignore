@@ -7,3 +7,5 @@ venv/
 # Generated experiment outputs. Keep selected result folders manually if needed.
 results/*
 !results/README.md
+
+run_experiment1_hospital.py

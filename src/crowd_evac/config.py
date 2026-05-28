@@ -33,57 +33,72 @@ LAYOUT_HOSPITAL_CORRIDOR = {
         "max_ticks": 1000,
     },
     "exits": [
-        {"pos": (2.4, 16.8), "width": 1.4, "side": "top"},
-        {"pos": (12.0, 16.8), "width": 1.4, "side": "top"},
-        {"pos": (24.0, 10.8), "width": 1.4, "side": "right"},
-        {"pos": (21.6, 0.0), "width": 1.4, "side": "bottom"},
+        {"pos": (0.0, 8.4), "width": 1.4, "side": "left"},
+        {"pos": (24.0, 8.4), "width": 1.4, "side": "right"},
     ],
     "internal_walls": [
-        ((4.8, 14.4), (4.8, 16.8)),
-        ((9.6, 14.4), (9.6, 15.6)),
-        ((14.4, 14.4), (14.4, 16.8)),
-        ((0.0, 14.4), (1.5, 14.4)),
-        ((3.3, 14.4), (4.8, 14.4)),
-        ((4.8, 14.4), (6.3, 14.4)),
-        ((8.1, 14.4), (9.6, 14.4)),
-        ((9.6, 14.4), (11.1, 14.4)),
-        ((12.9, 14.4), (16.8, 14.4)),
-        ((4.8, 14.4), (4.8, 15.3)),
-        ((4.8, 12.3), (4.8, 13.2)),
-        ((4.8, 2.4), (4.8, 3.3)),
-        ((4.8, 6.0), (4.8, 7.2)),
-        ((4.8, 8.4), (4.8, 12.0)),
-        ((4.8, 8.4), (7.8, 8.4)),
-        ((10.2, 8.4), (16.8, 8.4)),
-        ((4.8, 4.8), (6.9, 4.8)),
-        ((8.7, 4.8), (9.6, 4.8)),
-        ((9.6, 4.8), (11.1, 4.8)),
-        ((12.9, 4.8), (16.8, 4.8)),
-        ((9.6, 4.8), (9.6, 7.2)),
-        ((12.0, 4.8), (12.0, 7.2)),
-        ((16.8, 8.4), (16.8, 9.6)),
-        ((16.8, 12.0), (16.8, 13.2)),
-        ((16.8, 2.4), (16.8, 4.8)),
-        ((19.2, 6.6), (19.2, 8.4)),
-        ((0.0, 3.6), (2.1, 3.6)),
-        ((3.9, 3.6), (4.8, 3.6)),
-        ((4.8, 3.6), (6.9, 3.6)),
-        ((8.7, 3.6), (9.6, 3.6)),
-        ((9.6, 3.6), (11.1, 3.6)),
-        ((12.9, 3.6), (16.8, 3.6)),
+        # Top-room to corridor wall (deeper rooms, narrower corridor)
+        ((0.0, 10.8), (1.9, 10.8)),
+        ((2.9, 10.8), (6.7, 10.8)),
+        ((7.7, 10.8), (11.5, 10.8)),
+        ((12.5, 10.8), (16.3, 10.8)),
+        ((17.3, 10.8), (21.1, 10.8)),
+        ((22.1, 10.8), (24.0, 10.8)),
+        # Bottom-room to corridor wall
+        ((0.0, 6.0), (1.9, 6.0)),
+        ((2.9, 6.0), (6.7, 6.0)),
+        ((7.7, 6.0), (11.5, 6.0)),
+        ((12.5, 6.0), (16.3, 6.0)),
+        ((17.3, 6.0), (21.1, 6.0)),
+        ((22.1, 6.0), (24.0, 6.0)),
+        # Room partition walls
+        ((4.8, 10.8), (4.8, 16.8)),
+        ((9.6, 10.8), (9.6, 16.8)),
+        ((14.4, 10.8), (14.4, 16.8)),
+        ((19.2, 10.8), (19.2, 16.8)),
+        ((4.8, 0.0), (4.8, 6.0)),
+        ((9.6, 0.0), (9.6, 6.0)),
+        ((14.4, 0.0), (14.4, 6.0)),
+        ((19.2, 0.0), (19.2, 6.0)),
+        # Single large central corridor: no extra middle separator walls.
     ],
     "spawn_zones": [
-        {"rect": (0.6, 15.0, 3.6, 1.5), "weight": 1.0, "exit_index": 0},
-        {"rect": (5.4, 15.0, 3.6, 1.5), "weight": 1.0, "exit_index": 1},
-        {"rect": (10.2, 15.0, 3.6, 1.5), "weight": 1.0, "exit_index": 1},
-        {"rect": (0.6, 9.6, 3.6, 3.6), "weight": 1.0, "exit_index": 0},
-        {"rect": (0.6, 4.2, 3.6, 3.6), "weight": 1.0, "exit_index": 0},
-        {"rect": (6.0, 9.6, 9.6, 3.0), "weight": 1.0, "exit_index": 1},
-        {"rect": (5.4, 5.4, 3.6, 1.5), "weight": 1.0, "exit_index": 1},
-        {"rect": (12.6, 5.4, 3.6, 1.5), "weight": 1.0, "exit_index": 2},
-        {"rect": (0.6, 0.6, 4.8, 2.4), "weight": 1.0, "exit_index": 3},
-        {"rect": (6.6, 0.6, 4.8, 2.4), "weight": 1.0, "exit_index": 3},
-        {"rect": (19.8, 1.2, 3.6, 6.0), "weight": 1.0, "exit_index": 2},
+        # Top rooms
+        {"rect": (0.7, 11.2, 3.4, 5.1), "weight": 1.0, "exit_index": 0},
+        {"rect": (5.5, 11.2, 3.4, 5.1), "weight": 1.0, "exit_index": 1},
+        {"rect": (10.3, 11.2, 3.4, 5.1), "weight": 1.0, "exit_index": 1},
+        {"rect": (15.1, 11.2, 3.4, 5.1), "weight": 1.0, "exit_index": 2},
+        {"rect": (19.9, 11.2, 3.4, 5.1), "weight": 1.0, "exit_index": 2},
+        # Bottom rooms
+        {"rect": (0.7, 0.5, 3.4, 5.1), "weight": 1.0, "exit_index": 0},
+        {"rect": (5.5, 0.5, 3.4, 5.1), "weight": 1.0, "exit_index": 3},
+        {"rect": (10.3, 0.5, 3.4, 5.1), "weight": 1.0, "exit_index": 3},
+        {"rect": (15.1, 0.5, 3.4, 5.1), "weight": 1.0, "exit_index": 3},
+        {"rect": (19.9, 0.5, 3.4, 5.1), "weight": 1.0, "exit_index": 3},
+    ],
+    "navigation_nodes": [
+        # Room centers (top then bottom)
+        (2.4, 14.2), (7.2, 14.2), (12.0, 14.2), (16.8, 14.2), (21.6, 14.2),
+        (2.4, 2.6), (7.2, 2.6), (12.0, 2.6), (16.8, 2.6), (21.6, 2.6),
+        # Doorway anchors (top then bottom)
+        (2.4, 10.0), (7.2, 10.0), (12.0, 10.0), (16.8, 10.0), (21.6, 10.0),
+        (2.4, 6.8), (7.2, 6.8), (12.0, 6.8), (16.8, 6.8), (21.6, 6.8),
+        # Main corridor line
+        (2.4, 8.4), (7.2, 8.4), (12.0, 8.4), (16.8, 8.4), (21.6, 8.4),
+        # Exit anchors (left corridor end, right corridor end)
+        (0.4, 8.4), (23.6, 8.4),
+    ],
+    "navigation_edges": [
+        # Room center -> doorway
+        (0, 10), (1, 11), (2, 12), (3, 13), (4, 14),
+        (5, 15), (6, 16), (7, 17), (8, 18), (9, 19),
+        # Doorway -> main corridor
+        (10, 20), (11, 21), (12, 22), (13, 23), (14, 24),
+        (15, 20), (16, 21), (17, 22), (18, 23), (19, 24),
+        # Main corridor connectivity
+        (20, 21), (21, 22), (22, 23), (23, 24),
+        # Exit connectors
+        (20, 25), (24, 26),
     ],
 }
 
@@ -110,6 +125,10 @@ def sim_kwargs_from_layout(layout):
         kwargs["agent_body_radius"] = layout["agent_body_radius"]
     if "near_collision_distance" in layout:
         kwargs["near_collision_distance"] = layout["near_collision_distance"]
+    if "navigation_nodes" in layout:
+        kwargs["navigation_nodes"] = layout["navigation_nodes"]
+    if "navigation_edges" in layout:
+        kwargs["navigation_edges"] = layout["navigation_edges"]
     return kwargs
 
 
@@ -150,6 +169,10 @@ def layout_payload(layout):
         payload["agent_body_radius"] = layout["agent_body_radius"]
     if "near_collision_distance" in layout:
         payload["near_collision_distance"] = layout["near_collision_distance"]
+    if "navigation_nodes" in layout:
+        payload["navigation_nodes"] = [list(node) for node in layout["navigation_nodes"]]
+    if "navigation_edges" in layout:
+        payload["navigation_edges"] = [list(edge) for edge in layout["navigation_edges"]]
     if "default_params" in layout:
         payload["default_params"] = list(layout["default_params"])
     if "recommended_settings" in layout:

@@ -55,6 +55,18 @@ def _normalize_spawn_zones(spawn_zones):
     return normalized
 
 
+def _normalize_navigation_nodes(navigation_nodes):
+    if not navigation_nodes:
+        return np.zeros((0, 2), dtype=float)
+    return np.array([np.array(node, dtype=float) for node in navigation_nodes], dtype=float)
+
+
+def _normalize_navigation_edges(navigation_edges):
+    if not navigation_edges:
+        return []
+    return [(int(edge[0]), int(edge[1])) for edge in navigation_edges]
+
+
 def _point_segment_vectors(pos, segments):
     """Return closest-point vectors from agents to each wall segment."""
     if segments.size == 0:
@@ -85,6 +97,8 @@ class EvacuationModel:
         exits=None,
         internal_walls=None,
         spawn_zones=None,
+        navigation_nodes=None,
+        navigation_edges=None,
         agent_body_radius=0.0,
         rng=None,
     ):
@@ -97,14 +111,84 @@ class EvacuationModel:
         self.exit_side = self.exits[0]["side"]
         self.internal_walls = _normalize_internal_walls(internal_walls)
         self.spawn_zones = _normalize_spawn_zones(spawn_zones)
+        self.navigation_nodes = _normalize_navigation_nodes(navigation_nodes)
+        self.navigation_edges = _normalize_navigation_edges(navigation_edges)
         self.rng = rng if rng is not None else np.random.default_rng()
 
         self.positions, self.target_exit_indices = self._sample_initial_positions()
         self.velocities = np.zeros((self.num_agents, 2), dtype=float)
 
         self.types = np.array([1] * num_high + [0] * num_low)
-        self.max_speeds = np.where(self.types == 1, 1.5, 0.5)
+        self.max_speeds = np.where(self.types == 1, 1.5, 0.7)
         self.active = np.ones(self.num_agents, dtype=bool)
+        self._init_navigation_routing()
+
+    def _init_navigation_routing(self):
+        self.nav_adjacency = []
+        self.exit_node_indices = None
+        self.route_paths = None
+        self.route_cursor = None
+        self.prev_positions = self.positions.copy()
+        self.stall_ticks = np.zeros(self.num_agents, dtype=int)
+        if self.navigation_nodes.shape[0] == 0:
+            return
+
+        node_count = self.navigation_nodes.shape[0]
+        self.nav_adjacency = [[] for _ in range(node_count)]
+        for node_a, node_b in self.navigation_edges:
+            if 0 <= node_a < node_count and 0 <= node_b < node_count:
+                self.nav_adjacency[node_a].append(node_b)
+                self.nav_adjacency[node_b].append(node_a)
+
+        exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
+        dists = np.linalg.norm(self.navigation_nodes[np.newaxis, :, :] - exit_positions[:, np.newaxis, :], axis=2)
+        self.exit_node_indices = np.argmin(dists, axis=1).astype(int)
+
+        self.route_paths = []
+        self.route_cursor = np.zeros(self.num_agents, dtype=int)
+        for agent_idx in range(self.num_agents):
+            start_node = self._nearest_nav_node(self.positions[agent_idx])
+            exit_idx = self._agent_exit_index(agent_idx)
+            end_node = int(self.exit_node_indices[exit_idx])
+            path = self._shortest_nav_path(start_node, end_node)
+            self.route_paths.append(path)
+
+    def _agent_exit_index(self, agent_idx):
+        if self.target_exit_indices is None:
+            pos = self.positions[agent_idx]
+            exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
+            return int(np.argmin(np.linalg.norm(exit_positions - pos[np.newaxis, :], axis=1)))
+        return int(self.target_exit_indices[agent_idx])
+
+    def _nearest_nav_node(self, point):
+        dists = np.linalg.norm(self.navigation_nodes - point[np.newaxis, :], axis=1)
+        return int(np.argmin(dists))
+
+    def _shortest_nav_path(self, start_node, end_node):
+        if start_node == end_node:
+            return []
+        if not self.nav_adjacency:
+            return []
+        visited = np.zeros(len(self.nav_adjacency), dtype=bool)
+        parent = np.full(len(self.nav_adjacency), -1, dtype=int)
+        queue = [start_node]
+        visited[start_node] = True
+        for current in queue:
+            if current == end_node:
+                break
+            for nxt in self.nav_adjacency[current]:
+                if not visited[nxt]:
+                    visited[nxt] = True
+                    parent[nxt] = current
+                    queue.append(nxt)
+        if not visited[end_node]:
+            return []
+
+        rev_path = [end_node]
+        while rev_path[-1] != start_node:
+            rev_path.append(parent[rev_path[-1]])
+        rev_path.reverse()
+        return rev_path[1:]
 
     def _sample_initial_positions(self):
         if self.spawn_zones is None:
@@ -115,23 +199,59 @@ class EvacuationModel:
         weights /= weights.sum()
         positions = np.zeros((self.num_agents, 2), dtype=float)
         target_exit_indices = np.zeros(self.num_agents, dtype=int)
+        exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
         for index in range(self.num_agents):
             zone_index = int(self.rng.choice(len(self.spawn_zones), p=weights))
             zone = self.spawn_zones[zone_index]
             positions[index] = self._sample_spawn_point_in_zone(zone)
-            exit_index = zone.get("exit_index")
-            if exit_index is None:
-                exit_index = int(
-                    np.argmin(
-                        np.linalg.norm(
-                            np.array([exit_info["pos"] for exit_info in self.exits])[np.newaxis, :, :]
-                            - positions[index][np.newaxis, np.newaxis, :],
-                            axis=2,
-                        )[0]
-                    )
-                )
+            exit_index = self._choose_exit_for_position(positions[index], exit_positions)
             target_exit_indices[index] = int(exit_index)
         return positions, target_exit_indices
+
+    def _choose_exit_for_position(self, position, exit_positions):
+        # Prefer route-aware closest exit when a navigation graph exists.
+        if self.navigation_nodes.shape[0] > 0 and len(self.navigation_edges) > 0:
+            start_node = self._nearest_nav_node(position)
+            exit_node_indices = [
+                int(np.argmin(np.linalg.norm(self.navigation_nodes - exit_pos[np.newaxis, :], axis=1)))
+                for exit_pos in exit_positions
+            ]
+            path_distances = np.array(
+                [self._graph_distance(start_node, exit_node) for exit_node in exit_node_indices],
+                dtype=float,
+            )
+            if np.isfinite(path_distances).any():
+                return int(np.argmin(path_distances))
+
+        # Fallback for layouts without navigation graph.
+        return int(np.argmin(np.linalg.norm(exit_positions - position[np.newaxis, :], axis=1)))
+
+    def _graph_distance(self, start_node, end_node):
+        if start_node == end_node:
+            return 0.0
+        node_count = self.navigation_nodes.shape[0]
+        adjacency = [[] for _ in range(node_count)]
+        for node_a, node_b in self.navigation_edges:
+            if 0 <= node_a < node_count and 0 <= node_b < node_count:
+                edge_len = float(np.linalg.norm(self.navigation_nodes[node_a] - self.navigation_nodes[node_b]))
+                adjacency[node_a].append((node_b, edge_len))
+                adjacency[node_b].append((node_a, edge_len))
+
+        dist = np.full(node_count, np.inf, dtype=float)
+        visited = np.zeros(node_count, dtype=bool)
+        dist[start_node] = 0.0
+        for _ in range(node_count):
+            current = int(np.argmin(np.where(visited, np.inf, dist)))
+            if visited[current] or not np.isfinite(dist[current]):
+                break
+            if current == end_node:
+                return float(dist[current])
+            visited[current] = True
+            for nxt, edge_len in adjacency[current]:
+                candidate = dist[current] + edge_len
+                if candidate < dist[nxt]:
+                    dist[nxt] = candidate
+        return float(dist[end_node])
 
     def _sample_spawn_point_in_zone(self, zone, max_attempts=50):
         spawn_margin = max(0.25, self.agent_body_radius + 0.1)
@@ -185,12 +305,56 @@ class EvacuationModel:
         return evacuated
 
     def _target_positions(self, pos, active_mask):
+        if self.route_paths is not None:
+            active_indices = np.nonzero(active_mask)[0]
+            return self._waypoint_targets(pos, active_indices)
         if self.target_exit_indices is None:
             return self._nearest_exit_targets(pos)
 
         exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
         active_exit_indices = self.target_exit_indices[active_mask]
         return exit_positions[active_exit_indices]
+
+    def _waypoint_targets(self, pos, active_indices):
+        targets = np.zeros_like(pos)
+        for local_idx, global_idx in enumerate(active_indices):
+            self._recover_stalled_agent(global_idx, pos[local_idx])
+            self._advance_waypoint_cursor(global_idx, pos[local_idx])
+            waypoint = self._current_waypoint(global_idx)
+            targets[local_idx] = waypoint
+        return targets
+
+    def _advance_waypoint_cursor(self, agent_idx, agent_pos, reach_threshold=0.5):
+        path = self.route_paths[agent_idx]
+        while self.route_cursor[agent_idx] < len(path):
+            node_idx = path[self.route_cursor[agent_idx]]
+            if np.linalg.norm(agent_pos - self.navigation_nodes[node_idx]) <= reach_threshold:
+                self.route_cursor[agent_idx] += 1
+            else:
+                break
+
+    def _current_waypoint(self, agent_idx):
+        path = self.route_paths[agent_idx]
+        cursor = self.route_cursor[agent_idx]
+        if cursor < len(path):
+            return self.navigation_nodes[path[cursor]]
+        exit_idx = self._agent_exit_index(agent_idx)
+        return np.array(self.exits[exit_idx]["pos"], dtype=float)
+
+    def _recover_stalled_agent(self, agent_idx, agent_pos, stall_tick_limit=15):
+        if self.stall_ticks[agent_idx] < stall_tick_limit:
+            return
+        path = self.route_paths[agent_idx]
+        cursor = self.route_cursor[agent_idx]
+        if cursor >= len(path):
+            return
+        remaining_nodes = path[cursor:]
+        remaining_positions = self.navigation_nodes[np.array(remaining_nodes, dtype=int)]
+        dists = np.linalg.norm(remaining_positions - agent_pos[np.newaxis, :], axis=1)
+        best_offset = int(np.argmin(dists))
+        if best_offset > 0:
+            self.route_cursor[agent_idx] = cursor + best_offset
+        self.stall_ticks[agent_idx] = 0
 
     def _nearest_exit_targets(self, pos):
         exit_positions = np.array([exit_info["pos"] for exit_info in self.exits], dtype=float)
@@ -304,6 +468,7 @@ class EvacuationModel:
 
         pos = self.positions[active_mask]
         vel = self.velocities[active_mask]
+        prior_pos = pos.copy()
         max_speeds = self.max_speeds[active_mask]
 
         target_positions = self._target_positions(pos, active_mask)
@@ -313,6 +478,10 @@ class EvacuationModel:
 
         desired_velocity = desired_direction * max_speeds[:, np.newaxis]
         acceleration = (desired_velocity - vel) * accel_factor
+        low_mask_local = self.types[active_mask] == 0
+        if np.any(low_mask_local):
+            # Give low-mobility agents a stronger pull to their route target so they do not stall in queues.
+            acceleration[low_mask_local] *= 1.35
 
         diffs, dists = self.pair_wise_distances()
         in_range = dists < agent_radius
@@ -320,6 +489,9 @@ class EvacuationModel:
         repulsion_mag *= in_range
         force_vectors = (diffs / (dists[:, :, np.newaxis] + 1e-6)) * repulsion_mag[:, :, np.newaxis]
         agent_forces = np.sum(force_vectors, axis=1)
+        if np.any(low_mask_local):
+            # Reduce crowd-repulsion on low-mobility agents to keep them moving toward exits.
+            agent_forces[low_mask_local] *= 0.7
 
         wall_forces = np.zeros_like(pos)
         interaction_radius = self._effective_wall_radius(wall_radius)
@@ -350,6 +522,13 @@ class EvacuationModel:
         speeds = np.linalg.norm(vel, axis=1)
         speed_factors = np.minimum(1.0, max_speeds / (speeds + 1e-6))
         vel *= speed_factors[:, np.newaxis]
+        if np.any(low_mask_local):
+            # Enforce a small minimum forward pace for low-mobility agents while far from waypoint/exit.
+            low_far_mask = low_mask_local & (distances[:, 0] > 0.75)
+            low_speeds = np.linalg.norm(vel, axis=1)
+            low_stalled_mask = low_far_mask & (low_speeds < 0.12)
+            if np.any(low_stalled_mask):
+                vel[low_stalled_mask] = desired_direction[low_stalled_mask] * 0.12
 
         pos += vel * dt
         evacuated = self._evacuation_mask(pos)
@@ -365,9 +544,15 @@ class EvacuationModel:
 
         self.positions[active_mask] = pos
         self.velocities[active_mask] = vel
-
+        moved = np.linalg.norm(pos - prior_pos, axis=1)
         global_active_index = np.nonzero(active_mask)[0]
+        moved_mask = moved >= 0.02
+        self.stall_ticks[global_active_index[moved_mask]] = 0
+        self.stall_ticks[global_active_index[~moved_mask]] += 1
+        self.prev_positions[global_active_index] = pos
+
         self.active[global_active_index[evacuated]] = False
+        self.stall_ticks[global_active_index[evacuated]] = 0
         return True
 
 
@@ -415,6 +600,18 @@ def _serialize_spawn_zones(spawn_zones):
     return serialized
 
 
+def _serialize_navigation_nodes(navigation_nodes):
+    if not navigation_nodes:
+        return []
+    return [[float(node[0]), float(node[1])] for node in navigation_nodes]
+
+
+def _serialize_navigation_edges(navigation_edges):
+    if not navigation_edges:
+        return []
+    return [[int(edge[0]), int(edge[1])] for edge in navigation_edges]
+
+
 def run_simulation(
     params,
     num_high=30,
@@ -425,6 +622,8 @@ def run_simulation(
     exits=None,
     internal_walls=None,
     spawn_zones=None,
+    navigation_nodes=None,
+    navigation_edges=None,
     agent_body_radius=0.0,
     max_ticks=500,
     dt=0.1,
@@ -444,6 +643,8 @@ def run_simulation(
         exits=exits,
         internal_walls=internal_walls,
         spawn_zones=spawn_zones,
+        navigation_nodes=navigation_nodes,
+        navigation_edges=navigation_edges,
         agent_body_radius=agent_body_radius,
         rng=rng,
     )
@@ -506,6 +707,8 @@ def run_simulation(
         "exits": _serialize_exits(model.exits),
         "internal_walls": _serialize_internal_walls(internal_walls),
         "spawn_zones": _serialize_spawn_zones(spawn_zones),
+        "navigation_nodes": _serialize_navigation_nodes(navigation_nodes),
+        "navigation_edges": _serialize_navigation_edges(navigation_edges),
         "agent_body_radius": float(agent_body_radius),
         "dt": float(dt),
     }
