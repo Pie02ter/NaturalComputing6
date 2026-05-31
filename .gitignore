@@ -8,4 +8,5 @@ venv/
 results/*
 !results/README.md
 
-run_experiment1_hospital.py
+run_experiment*
+recover_exp*
