@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
@@ -59,7 +59,7 @@ def mann_kendall_test(series):
     return {"n": int(n), "S": int(s_stat), "var_S": float(var_s), "Z": float(z_stat), "p_value": float(p_value)}
 
 
-def run_experiment(out_root, ga_seeds, evaluation_seeds):
+def run_experiment(out_root, ga_seeds, evaluation_seeds, ga_settings=None):
     out_root.mkdir(parents=True, exist_ok=True)
     runs_dir = out_root / "runs"
     runs_dir.mkdir(exist_ok=True)
@@ -81,6 +81,7 @@ def run_experiment(out_root, ga_seeds, evaluation_seeds):
         "frame_stride": 4,
         "seed": 42,
     }
+    ga_settings = dict(GA_DEFAULTS if ga_settings is None else ga_settings)
 
     run_rows = []
     convergence_rows = []
@@ -94,13 +95,13 @@ def run_experiment(out_root, ga_seeds, evaluation_seeds):
             seeds=evaluation_seeds,
             layout_name=sim_settings["layout"],
             sim_settings=sim_settings,
-            population_size=GA_DEFAULTS["population_size"],
-            generations=GA_DEFAULTS["generations"],
-            elite_count=GA_DEFAULTS["elite_count"],
-            tournament_size=GA_DEFAULTS["tournament_size"],
-            crossover_probability=GA_DEFAULTS["crossover_probability"],
-            mutation_probability=GA_DEFAULTS["mutation_probability"],
-            mutation_sigma_scale=GA_DEFAULTS["mutation_sigma_scale"],
+            population_size=ga_settings["population_size"],
+            generations=ga_settings["generations"],
+            elite_count=ga_settings["elite_count"],
+            tournament_size=ga_settings["tournament_size"],
+            crossover_probability=ga_settings["crossover_probability"],
+            mutation_probability=ga_settings["mutation_probability"],
+            mutation_sigma_scale=ga_settings["mutation_sigma_scale"],
             rng_seed=ga_seed,
             log_path=run_dir / "evaluations_ga.csv",
             fitness_weights=weights,
@@ -202,7 +203,7 @@ def build_statistics(run_rows, convergence_rows):
         values = df_runs[col].astype(float).to_numpy()
         stats_payload[col] = {
             "mean": float(np.mean(values)),
-            "std": float(np.std(values, ddof=1)),
+            "std": float(np.std(values, ddof=1)) if len(values) > 1 else 0.0,
             "min": float(np.min(values)),
             "max": float(np.max(values)),
         }
@@ -242,7 +243,7 @@ def make_plots(out_root, df_runs, by_gen):
     fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
     for ax, col in zip(axes, params_cols):
         y = df_runs[col].to_numpy()
-        ax.boxplot([y], labels=[col], showfliers=False)
+        ax.boxplot([y], tick_labels=[col], showfliers=False)
         x = np.random.normal(loc=1.0, scale=0.04, size=len(y))
         ax.scatter(x, y, s=22, alpha=0.75)
         ax.set_title(col)
@@ -296,10 +297,21 @@ def main():
         default=[11, 29, 47, 53, 61, 73, 89, 97, 101, 109],
         help="Simulation seeds used inside each candidate fitness evaluation.",
     )
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Tiny run for pipeline testing; full paper settings remain the default.",
+    )
     args = parser.parse_args()
 
+    ga_settings = dict(GA_DEFAULTS)
+    if args.quick:
+        args.ga_seeds = args.ga_seeds[:1]
+        args.evaluation_seeds = args.evaluation_seeds[:1]
+        ga_settings.update({"population_size": 6, "generations": 3, "elite_count": 1, "tournament_size": 2})
+
     out_root = (ROOT / args.out).resolve()
-    eval_result = run_experiment(out_root, args.ga_seeds, args.evaluation_seeds)
+    eval_result = run_experiment(out_root, args.ga_seeds, args.evaluation_seeds, ga_settings=ga_settings)
     stats_payload, by_gen = build_statistics(eval_result["run_rows"], eval_result["convergence_rows"])
 
     stats_path = out_root / "aggregate_stats.json"

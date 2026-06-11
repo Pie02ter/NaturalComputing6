@@ -1,23 +1,21 @@
-# Heterogeneous Crowd Evacuation Optimization
+# Heterogeneous Hospital-Corridor Evacuation Optimization
 
-This project studies whether a real-coded genetic algorithm can tune local movement-rule parameters for a heterogeneous crowd evacuation model. The core code is independent from the browser interface: scripts and the WebUI both call the same `src/crowd_evac` package.
+This repository contains the reproducible Python code for the Natural Computing project paper, "Optimizing Local Movement Rules for Heterogeneous Crowd Evacuation with a Genetic Algorithm". The browser UI has been removed; the hand-in now consists only of the simulator, GA, paper experiment scripts, and documentation needed to reproduce the reported results.
 
-## Repository Structure
+## Structure
 
 ```text
-configs/                 JSON experiment configurations
-scripts/                 command-line entry points
-src/crowd_evac/          simulator, fitness, baselines, GA, experiments, visualization
-webapp/                  optional Flask UI for interactive exploration
-results/                 generated experiment outputs
-reports/                 optional report figures/PDFs
+scripts/                 command-line runners for the four paper experiments
+src/crowd_evac/          hospital-corridor config, simulator, GA, package code
+results/                 generated outputs when experiments are run
+reports/                 report PDFs, if included in the hand-in
 ```
 
-The code-only hand-in can exclude `webapp/`, `results/`, and `reports/` unless generated artifacts are requested.
+The core dependency direction is intentionally simple: scripts call `src/crowd_evac/`; the package does not depend on any UI code.
 
-## Installation
+## Install
 
-Install dependencies from the project root:
+Use Python 3.10 or newer.
 
 ```bash
 pip install -r requirements.txt
@@ -29,113 +27,115 @@ Optional editable install:
 pip install -e .
 ```
 
-## Run The Main Experiment
-
-The first formal experiment compares the fixed default, two heuristics, 600-sample random search, and a GA with population 24 for 25 generations. It uses the standard room, 30 high-mobility agents, 10 low-mobility agents, and seeds `[11, 29, 47]`.
-
-```bash
-python scripts/run_experiment.py --config configs/standard_baseline.json --out results/standard_baseline --make-plots --make-animations
-```
-
-For a fast sanity check:
-
-```bash
-python scripts/run_experiment.py --config configs/quick_debug.json --out results/quick_debug --make-plots --quick
-```
-
-## Output Format
-
-Each standardized run writes:
-
-```text
-results/<run_name>/
-├── config.json
-├── best_runs.json             original full run summary
-├── evaluations.csv            all candidate evaluations
-├── summary.csv                compact method comparison
-├── summary.json               compact machine-readable summary
-├── ga_convergence.csv
-├── plots/
-│   ├── fitness_comparison.png
-│   ├── metric_breakdown.png
-│   ├── ga_convergence.png
-│   ├── efficiency_fairness_tradeoff.png
-│   └── parameter_comparison.png
-└── animations/
-    ├── default.gif
-    ├── heuristic_1.gif
-    ├── heuristic_2.gif
-    ├── random_search.gif
-    ├── ga.gif
-    └── method_comparison.gif
-```
-
-Plots and animations can be regenerated without rerunning the optimization:
-
-```bash
-python scripts/make_plots.py results/standard_baseline
-python scripts/make_animations.py results/standard_baseline --seed 11
-```
-
-## Experiment Configs
-
-Use JSON files in `configs/` to define reproducible experiments.
-
-Available configs:
-
-- `standard_baseline.json`: main first experiment for the report.
-- `quick_debug.json`: tiny run for testing the pipeline.
-- `generalization.json`: train on standard setup and evaluate best parameters on extra layouts/densities.
-- `fairness_ablation.json`: standardized replacement for the old checkpoint fairness/no-fairness idea; change `fitness_weights.fairness` and rerun into separate result folders.
-
-## WebUI
-
-The WebUI is only for interactive exploration. It is not required for the code hand-in.
-
-Start it with:
-
-```bash
-python webapp/app.py
-```
-
-Then open:
-
-```text
-http://127.0.0.1:5000
-```
-
-Pages:
-
-- `/manual`: run one simulation with chosen parameters.
-- `/ga`: run a GA interactively.
-- `/comparison`: compare default, heuristics, random search, and GA.
-- `/experiments`: run preset-style standard/generalization experiments from the browser.
-
-The old checkpoint page was removed. Its useful role is covered by standardized configs and visualization scripts.
-
 ## Smoke Test
+
+Run this first to check that the hospital-corridor simulator and GA parameter expansion work:
 
 ```bash
 python scripts/smoke_test.py
 ```
 
-This checks that the default GA genome expands to the default full parameter vector and that the simulator completes a default evacuation.
+## Fast Pipeline Check
 
-## Extending The Project
+These commands use tiny GA budgets and seed counts. They are meant to verify that every experiment script runs and writes the expected CSV, JSON, and figure outputs without waiting for the full paper run.
 
-To add a new experiment:
-
-1. Add a JSON file in `configs/`.
-2. Run it with `scripts/run_experiment.py`.
-3. Reuse `scripts/make_plots.py` and `scripts/make_animations.py` for standardized figures.
-4. If a new experiment type needs custom orchestration, add it under `src/crowd_evac/experiments.py`, not in the WebUI.
-
-The intended dependency direction is:
-
-```text
-scripts/  ─────┐
-               ├──> src/crowd_evac/
-webapp/   ─────┘
+```bash
+python scripts/run_experiment1_hospital.py --quick --out results/quick_experiment1
+python scripts/run_experiment2_hospital.py --quick --out results/quick_experiment2
+python scripts/run_experiment3_hospital.py --quick --out results/quick_experiment3
+python scripts/run_experiment4_hospital.py --quick --params-json results/quick_experiment1/runs/run_01/best_ga.json --out results/quick_experiment4
 ```
 
-`src/crowd_evac/` should never import from `webapp/`.
+## Full Paper Experiments
+
+Run the experiments below to reproduce the results and plots used in the latest paper draft. Defaults encode the reported hospital-corridor layout, 40 agents, GA settings, weights, and seeds.
+
+Experiment 1, baseline stability and parameter variance:
+
+```bash
+python scripts/run_experiment1_hospital.py
+```
+
+Experiment 2, fitness-weight sensitivity and Pareto structure:
+
+```bash
+python scripts/run_experiment2_hospital.py
+```
+
+Experiment 3, GA hyperparameter ablation under a fixed 600-evaluation budget:
+
+```bash
+python scripts/run_experiment3_hospital.py
+```
+
+Experiment 4, population heterogeneity stress test using the Experiment 1 run with GA seed `606`:
+
+```bash
+python scripts/run_experiment4_hospital.py
+```
+
+Experiment 4 depends on `results/experiment1_baseline_stability_hospital/summary_per_run.csv` by default. If you want to use a specific parameter file instead, pass `--params-json` with a JSON containing `params`, `full_params`, or `active_params`.
+
+## Output Files
+
+Each experiment writes a self-contained result folder under `results/`.
+
+Experiment 1 writes:
+
+```text
+results/experiment1_baseline_stability_hospital/
+├── summary_per_run.csv
+├── ga_convergence_all_runs.csv
+├── aggregate_stats.json
+├── ga_convergence_runs.png
+├── parameter_variance_boxplot.png
+└── runs/run_*/best_ga.json, ga_history.json, meta.json, evaluations_ga.csv
+```
+
+Experiment 2 writes:
+
+```text
+results/experiment2_weight_sensitivity_hospital/
+├── summary_by_weights.csv
+├── all_ga_seed_attempts.csv
+├── aggregate_stats.json
+├── pareto_time_vs_fairness.png
+└── weights_*/best_ga.json, ga_history.json, best_selected.json, meta.json
+```
+
+Experiment 3 writes:
+
+```text
+results/experiment3_ga_ablation_hospital/
+├── summary_per_run.csv
+├── convergence_by_eval.csv
+├── aggregate_stats.json
+├── convergence_vs_evaluations.png
+├── best_fitness_boxplot_by_config.png
+└── configs/*/seed_*/best_ga.json, ga_history.json, meta.json, evaluations_ga.csv
+```
+
+Experiment 4 writes:
+
+```text
+results/experiment4_population_stress_hospital/
+├── fixed_params.json
+├── per_seed_results.csv
+├── aggregate_stats.json
+├── evacuation_time_by_scenario.png
+└── fairness_gap_by_scenario.png
+```
+
+## Re-running Plots From Existing Data
+
+Experiment 2 supports rebuilding statistics and plots without rerunning the GA sweep:
+
+```bash
+python scripts/run_experiment2_hospital.py --recover
+```
+
+The other paper scripts currently regenerate plots as part of their normal run because their plotting is directly tied to the experiment summary CSVs.
+
+## What Is Optimized
+
+The GA optimizes three continuous local movement parameters: acceleration factor, agent-agent repulsion weight, and agent-agent interaction radius. Wall repulsion weight and wall interaction radius are fixed in `src/crowd_evac/config.py`, matching the paper's focus on interpersonal movement rules in the hospital-corridor scenario.

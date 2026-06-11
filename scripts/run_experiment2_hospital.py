@@ -8,7 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
@@ -56,7 +56,7 @@ def weight_dir_name(w_time, w_fair):
     return f"weights_wT{fmt(w_time)}_wF{fmt(w_fair)}"
 
 
-def run_ga_for_seed(pair_dir, ga_seed, weights, evaluation_seeds):
+def run_ga_for_seed(pair_dir, ga_seed, weights, evaluation_seeds, ga_settings):
     seed_dir = pair_dir / f"seed_{ga_seed}"
     seed_dir.mkdir(parents=True, exist_ok=True)
 
@@ -64,13 +64,13 @@ def run_ga_for_seed(pair_dir, ga_seed, weights, evaluation_seeds):
         seeds=evaluation_seeds,
         layout_name=HOSPITAL_SIM_SETTINGS["layout"],
         sim_settings=HOSPITAL_SIM_SETTINGS,
-        population_size=GA_DEFAULTS["population_size"],
-        generations=GA_DEFAULTS["generations"],
-        elite_count=GA_DEFAULTS["elite_count"],
-        tournament_size=GA_DEFAULTS["tournament_size"],
-        crossover_probability=GA_DEFAULTS["crossover_probability"],
-        mutation_probability=GA_DEFAULTS["mutation_probability"],
-        mutation_sigma_scale=GA_DEFAULTS["mutation_sigma_scale"],
+        population_size=ga_settings["population_size"],
+        generations=ga_settings["generations"],
+        elite_count=ga_settings["elite_count"],
+        tournament_size=ga_settings["tournament_size"],
+        crossover_probability=ga_settings["crossover_probability"],
+        mutation_probability=ga_settings["mutation_probability"],
+        mutation_sigma_scale=ga_settings["mutation_sigma_scale"],
         rng_seed=ga_seed,
         log_path=seed_dir / "evaluations_ga.csv",
         fitness_weights=weights,
@@ -115,19 +115,21 @@ def run_ga_for_seed(pair_dir, ga_seed, weights, evaluation_seeds):
     }
 
 
-def run_weight_sweep(out_root, evaluation_seeds, ga_seeds):
+def run_weight_sweep(out_root, evaluation_seeds, ga_seeds, weight_pairs=None, ga_settings=None):
     out_root.mkdir(parents=True, exist_ok=True)
+    weight_pairs = WEIGHT_PAIRS if weight_pairs is None else weight_pairs
+    ga_settings = dict(GA_DEFAULTS if ga_settings is None else ga_settings)
     summary_rows = []
     attempt_rows = []
 
-    for idx, (w_time, w_fair) in enumerate(WEIGHT_PAIRS, start=1):
+    for idx, (w_time, w_fair) in enumerate(weight_pairs, start=1):
         weights = build_fitness_weights(w_time, w_fair)
         pair_dir = out_root / weight_dir_name(w_time, w_fair)
         pair_dir.mkdir(parents=True, exist_ok=True)
 
         candidates = []
         for ga_seed in ga_seeds:
-            attempt = run_ga_for_seed(pair_dir, ga_seed, weights, evaluation_seeds)
+            attempt = run_ga_for_seed(pair_dir, ga_seed, weights, evaluation_seeds, ga_settings)
             attempt_rows.append(
                 {
                     "pair_index": idx,
@@ -323,6 +325,11 @@ def main():
         action="store_true",
         help="Rebuild stats and plots from existing CSVs without re-running the GA sweep.",
     )
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Tiny run for pipeline testing; full paper settings remain the default.",
+    )
     args = parser.parse_args()
 
     out_root = (ROOT / args.out).resolve()
@@ -341,10 +348,17 @@ def main():
         summary_csv, attempts_csv, stats_path, plot_paths = postprocess_results(out_root, ga_seeds)
     else:
         ga_seeds = args.ga_seeds if args.ga_seeds is not None else DEFAULT_GA_SEEDS
+        weight_pairs = WEIGHT_PAIRS
+        ga_settings = dict(GA_DEFAULTS)
+        if args.quick:
+            ga_seeds = ga_seeds[:1]
+            args.evaluation_seeds = args.evaluation_seeds[:1]
+            weight_pairs = WEIGHT_PAIRS[:2]
+            ga_settings.update({"population_size": 6, "generations": 3, "elite_count": 1, "tournament_size": 2})
         if not ga_seeds:
             raise SystemExit("Provide at least one GA seed via --ga-seeds.")
         _, _, summary_csv, attempts_csv = run_weight_sweep(
-            out_root, args.evaluation_seeds, ga_seeds
+            out_root, args.evaluation_seeds, ga_seeds, weight_pairs=weight_pairs, ga_settings=ga_settings
         )
         _, _, stats_path, plot_paths = postprocess_results(out_root, ga_seeds)
 

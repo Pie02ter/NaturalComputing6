@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
@@ -266,7 +266,7 @@ def plot_metric_boxplots(out_root, df):
     ]:
         data = [df[df["scenario_name"] == name][metric].astype(float).to_numpy() for name in scenario_order]
         fig, ax = plt.subplots(figsize=(9, 5))
-        bp = ax.boxplot(data, labels=labels, patch_artist=True, showfliers=True)
+        bp = ax.boxplot(data, tick_labels=labels, patch_artist=True, showfliers=True)
         for patch in bp["boxes"]:
             patch.set_facecolor("#93c5fd")
             patch.set_alpha(0.45)
@@ -318,7 +318,15 @@ def main():
         default=DEFAULT_SIMULATION_SEEDS,
         help="Simulation seeds per scenario (30 recommended).",
     )
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Tiny run for pipeline testing; full paper settings remain the default.",
+    )
     args = parser.parse_args()
+
+    if args.quick:
+        args.simulation_seeds = args.simulation_seeds[:2]
 
     if not args.simulation_seeds:
         raise SystemExit("Provide at least one simulation seed via --simulation-seeds.")

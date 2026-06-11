@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
@@ -67,11 +67,12 @@ def normal_cdf(x):
     return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
 
 
-def assert_eval_budgets():
-    for name, cfg in GA_CONFIGS.items():
+def assert_eval_budgets(configs=None, expected_budget=EVAL_BUDGET):
+    configs = GA_CONFIGS if configs is None else configs
+    for name, cfg in configs.items():
         budget = cfg["population_size"] * cfg["generations"]
-        if budget != EVAL_BUDGET:
-            raise ValueError(f"Config {name} budget is {budget}, expected {EVAL_BUDGET}")
+        if budget != expected_budget:
+            raise ValueError(f"Config {name} budget is {budget}, expected {expected_budget}")
 
 
 def kruskal_wallis(groups):
@@ -232,12 +233,13 @@ def extract_convergence_stats(log_path, config_name, config_label, ga_seed, popu
     return grouped.to_dict(orient="records")
 
 
-def run_ablation(out_root, evaluation_seeds, ga_seeds):
+def run_ablation(out_root, evaluation_seeds, ga_seeds, configs=None):
     out_root.mkdir(parents=True, exist_ok=True)
+    configs = GA_CONFIGS if configs is None else configs
     summary_rows = []
     convergence_rows = []
 
-    for config_name, config in GA_CONFIGS.items():
+    for config_name, config in configs.items():
         config_dir = out_root / "configs" / config_name
         for ga_seed in ga_seeds:
             run_dir = config_dir / f"seed_{ga_seed}"
@@ -259,9 +261,10 @@ def run_ablation(out_root, evaluation_seeds, ga_seeds):
     return summary_rows, convergence_rows, summary_csv, convergence_csv
 
 
-def build_aggregate_stats(summary_df):
+def build_aggregate_stats(summary_df, configs=None, eval_budget=EVAL_BUDGET):
+    configs = GA_CONFIGS if configs is None else configs
     stats = {
-        "eval_budget": EVAL_BUDGET,
+        "eval_budget": eval_budget,
         "configs": {},
         "kruskal_wallis_final_fitness": None,
         "mann_whitney_posthoc_bonferroni": [],
@@ -269,7 +272,7 @@ def build_aggregate_stats(summary_df):
 
     groups = []
     group_names = []
-    for config_name in GA_CONFIGS:
+    for config_name in configs:
         subset = summary_df[summary_df["config_name"] == config_name]["best_fitness"].astype(float)
         values = subset.to_numpy()
         groups.append(values)
@@ -317,12 +320,13 @@ def build_aggregate_stats(summary_df):
     return stats
 
 
-def plot_convergence_vs_evaluations(out_root, convergence_df):
+def plot_convergence_vs_evaluations(out_root, convergence_df, configs=None, eval_budget=EVAL_BUDGET):
+    configs = GA_CONFIGS if configs is None else configs
     png_path = out_root / "convergence_vs_evaluations.png"
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    for config_name, config in GA_CONFIGS.items():
+    for config_name, config in configs.items():
         subset = convergence_df[convergence_df["config_name"] == config_name]
         color = CONFIG_COLORS[config_name]
 
@@ -372,7 +376,7 @@ def plot_convergence_vs_evaluations(out_root, convergence_df):
     ax.set_title("GA Ablation: Population Mean Fitness vs Evaluation Budget")
     ax.set_xlabel("Cumulative Evaluations")
     ax.set_ylabel("Population Mean Fitness (lower is better)")
-    ax.set_xlim(0, EVAL_BUDGET)
+    ax.set_xlim(0, eval_budget)
     ax.legend()
     ax.grid(alpha=0.25)
     fig.tight_layout()
@@ -382,23 +386,24 @@ def plot_convergence_vs_evaluations(out_root, convergence_df):
     return {"convergence_png": str(png_path)}
 
 
-def plot_best_fitness_boxplot(out_root, summary_df):
+def plot_best_fitness_boxplot(out_root, summary_df, configs=None):
+    configs = GA_CONFIGS if configs is None else configs
     png_path = out_root / "best_fitness_boxplot_by_config.png"
 
-    labels = [GA_CONFIGS[name]["label"] for name in GA_CONFIGS]
+    labels = [configs[name]["label"] for name in configs]
     data = [
         summary_df[summary_df["config_name"] == name]["best_fitness"].astype(float).to_numpy()
-        for name in GA_CONFIGS
+        for name in configs
     ]
-    colors = [CONFIG_COLORS[name] for name in GA_CONFIGS]
+    colors = [CONFIG_COLORS[name] for name in configs]
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    bp = ax.boxplot(data, labels=labels, patch_artist=True, showfliers=True)
+    bp = ax.boxplot(data, tick_labels=labels, patch_artist=True, showfliers=True)
     for patch, color in zip(bp["boxes"], colors):
         patch.set_facecolor(color)
         patch.set_alpha(0.35)
 
-    for idx, (name, values) in enumerate(zip(GA_CONFIGS, data), start=1):
+    for idx, (name, values) in enumerate(zip(configs, data), start=1):
         x = np.random.normal(loc=idx, scale=0.04, size=len(values))
         ax.scatter(x, values, s=28, alpha=0.75, color=CONFIG_COLORS[name], edgecolors="black", linewidths=0.4)
 
@@ -413,8 +418,6 @@ def plot_best_fitness_boxplot(out_root, summary_df):
 
 
 def main():
-    assert_eval_budgets()
-
     parser = argparse.ArgumentParser(
         description="Experiment 3: GA hyperparameter ablation on hospital_corridor."
     )
@@ -437,26 +440,45 @@ def main():
         default=[11, 29, 47, 53, 61, 73, 89, 97, 101, 109],
         help="Simulation seeds used inside each candidate fitness evaluation.",
     )
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Tiny run for pipeline testing; full paper settings remain the default.",
+    )
     args = parser.parse_args()
+
+    configs = GA_CONFIGS
+    eval_budget = EVAL_BUDGET
+    if args.quick:
+        args.ga_seeds = args.ga_seeds[:1]
+        args.evaluation_seeds = args.evaluation_seeds[:1]
+        configs = {
+            "A_default": {**GA_CONFIGS["A_default"], "population_size": 6, "generations": 3},
+            "B_exploration": {**GA_CONFIGS["B_exploration"], "population_size": 9, "generations": 2},
+            "C_exploitation": {**GA_CONFIGS["C_exploitation"], "population_size": 3, "generations": 6},
+        }
+        eval_budget = 18
+
+    assert_eval_budgets(configs=configs, expected_budget=eval_budget)
 
     if not args.ga_seeds:
         raise SystemExit("Provide at least one GA seed via --ga-seeds.")
 
     out_root = (ROOT / args.out).resolve()
     summary_rows, _, summary_csv, convergence_csv = run_ablation(
-        out_root, args.evaluation_seeds, args.ga_seeds
+        out_root, args.evaluation_seeds, args.ga_seeds, configs=configs
     )
 
     summary_df = pd.DataFrame(summary_rows)
     convergence_df = pd.read_csv(convergence_csv)
 
-    stats_payload = build_aggregate_stats(summary_df)
+    stats_payload = build_aggregate_stats(summary_df, configs=configs, eval_budget=eval_budget)
     stats_path = out_root / "aggregate_stats.json"
     stats_path.write_text(json.dumps(stats_payload, indent=2), encoding="utf-8")
 
     plot_paths = {}
-    plot_paths.update(plot_convergence_vs_evaluations(out_root, convergence_df))
-    plot_paths.update(plot_best_fitness_boxplot(out_root, summary_df))
+    plot_paths.update(plot_convergence_vs_evaluations(out_root, convergence_df, configs=configs, eval_budget=eval_budget))
+    plot_paths.update(plot_best_fitness_boxplot(out_root, summary_df, configs=configs))
 
     print("Done. Outputs in:")
     print(f"- {out_root}")
