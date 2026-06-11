@@ -8,5 +8,6 @@ venv/
 results/*
 !results/README.md
 
-run_experiment*
 results.zip
+make_snapshot.py
+reports*
