@@ -7,7 +7,6 @@ venv/
 
 # Generated experiment outputs. Reference outputs are tracked separately.
 results/*
-!results/README.md
 
 # OS, editor, and temporary files.
 .DS_Store

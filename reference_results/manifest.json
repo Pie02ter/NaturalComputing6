@@ -1,6 +1,6 @@
 {
-  "generated_timestamp_utc": "2026-06-12T13:53:32Z",
-  "provenance": "Cleaned import from results (1).zip; restricted to the four final paper experiment folders and cleaned of OS metadata and private absolute paths.",
+  "generated_timestamp_utc": "2026-06-12T14:48:06Z",
+  "provenance": "Cleaned stored outputs used for the submitted paper; restricted to the four final experiment folders and cleaned of OS metadata and private absolute paths.",
   "experiment_directories": [
     "experiment1_baseline_stability_hospital",
     "experiment2_weight_sensitivity_hospital",
@@ -85,11 +85,6 @@
       "path": "experiment1_baseline_stability_hospital/parameter_variance_boxplot.pdf",
       "size_bytes": 17548,
       "sha256": "1cec723e501db0ed5086cd3349956c952b0f56e341e4e56447dd4476e7bb9835"
-    },
-    {
-      "path": "experiment1_baseline_stability_hospital/report.md",
-      "size_bytes": 2622,
-      "sha256": "6fa2ebfb6697db9031bf188b4192968c15bc6e68b1b7d02f82b517c79337ac45"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_01/best_ga.json",
@@ -315,11 +310,6 @@
       "path": "experiment2_weight_sensitivity_hospital/pareto_time_vs_fairness.png",
       "size_bytes": 117662,
       "sha256": "f0e03db70ae9d8505082f9d2f28b892878001629bad4ffaba77a61c31e829047"
-    },
-    {
-      "path": "experiment2_weight_sensitivity_hospital/report.md",
-      "size_bytes": 729,
-      "sha256": "5999ae3f9cf70dfa341e39771eb5aa7d26206104147bc8b395f9a3331b67d451"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/summary_by_weights.csv",
@@ -1432,11 +1422,6 @@
       "sha256": "4c8096d2c8e3caadac54fa0bfaa3a0fc874282548aa6f04b866590bccde0eed9"
     },
     {
-      "path": "experiment3_ga_ablation_hospital/report.md",
-      "size_bytes": 5093,
-      "sha256": "c38043c919fae929f9fe261143670136408ee12bfb0896d1cc00710b1437942d"
-    },
-    {
       "path": "experiment3_ga_ablation_hospital/summary_per_run.csv",
       "size_bytes": 5391,
       "sha256": "b6ade88981aace8c908801fc6b05f2b22529d4a7f54475c2a39908ff0f209be0"
@@ -1475,16 +1460,6 @@
       "path": "experiment4_population_stress_hospital/per_seed_results.csv",
       "size_bytes": 10965,
       "sha256": "044e851f37c50a50f7c799810252377942fc353fe9ca59c75ceb0775ea4d86e0"
-    },
-    {
-      "path": "experiment4_population_stress_hospital/report.md",
-      "size_bytes": 1715,
-      "sha256": "7b10340035f44941f55c65199523686a628d7d53cea7e4b7ac60ba7b62a05906"
-    },
-    {
-      "path": "README.md",
-      "size_bytes": 1001,
-      "sha256": "cdeea89a1df2fc5ed44e69b1c5ade5558f760863756d364982de024960937063"
     }
   ]
 }
