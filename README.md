@@ -47,5 +47,3 @@ To check the stored paper results:
 ```bash
 python scripts/verify_reference_results.py
 ```
-
-The submitted paper is `reports/final_report.pdf`.
