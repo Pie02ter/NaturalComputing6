@@ -1,0 +1,31 @@
+{
+  "selected_ga_seed": 505,
+  "selected_best_fitness": 44.01104225010616,
+  "all_attempts": [
+    {
+      "ga_seed": 101,
+      "best_fitness": 45.52252607937829,
+      "mean_collisions": 71.3
+    },
+    {
+      "ga_seed": 202,
+      "best_fitness": 44.74312117477381,
+      "mean_collisions": 64.5
+    },
+    {
+      "ga_seed": 303,
+      "best_fitness": 45.959686153372495,
+      "mean_collisions": 48.2
+    },
+    {
+      "ga_seed": 404,
+      "best_fitness": 44.36881099338806,
+      "mean_collisions": 49.2
+    },
+    {
+      "ga_seed": 505,
+      "best_fitness": 44.01104225010616,
+      "mean_collisions": 41.9
+    }
+  ]
+}

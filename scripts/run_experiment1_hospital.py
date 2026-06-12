@@ -238,13 +238,14 @@ def build_statistics(run_rows, convergence_rows):
 def make_plots(out_root, df_runs, by_gen):
     boxplot_png = out_root / "parameter_variance_boxplot.png"
     conv_png = out_root / "ga_convergence_runs.png"
+    plot_rng = np.random.default_rng(0)
 
     params_cols = ["accel_factor", "agent_rep_weight", "agent_radius"]
     fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
     for ax, col in zip(axes, params_cols):
         y = df_runs[col].to_numpy()
         ax.boxplot([y], tick_labels=[col], showfliers=False)
-        x = np.random.normal(loc=1.0, scale=0.04, size=len(y))
+        x = plot_rng.normal(loc=1.0, scale=0.04, size=len(y))
         ax.scatter(x, y, s=22, alpha=0.75)
         ax.set_title(col)
         ax.set_ylabel("Value")

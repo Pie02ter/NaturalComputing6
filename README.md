@@ -1,141 +1,93 @@
-# Heterogeneous Hospital-Corridor Evacuation Optimization
+# Optimizing Local Movement Rules for Heterogeneous Crowd Evacuation
 
-This repository contains the reproducible Python code for the Natural Computing project paper, "Optimizing Local Movement Rules for Heterogeneous Crowd Evacuation with a Genetic Algorithm". The browser UI has been removed; the hand-in now consists only of the simulator, GA, paper experiment scripts, and documentation needed to reproduce the reported results.
+Command-line research code for the Natural Computing project paper, "Optimizing Local Movement Rules for Heterogeneous Crowd Evacuation with a Genetic Algorithm". The project studies a heterogeneous hospital-corridor evacuation model and optimizes local movement-rule parameters with a genetic algorithm (GA).
 
-## Structure
+## Repository Structure
 
 ```text
-scripts/                 command-line runners for the four paper experiments
-src/crowd_evac/          hospital-corridor config, simulator, GA, package code
-results/                 generated outputs when experiments are run
-reports/                 report PDFs, if included in the hand-in
+src/crowd_evac/        simulator, configuration, and GA implementation
+scripts/               smoke test, quick pipeline, experiment runners, verifier
+results/               ignored runtime outputs from newly executed experiments
+reference_results/     tracked cleaned outputs used for the submitted report
+reports/               submitted report PDF and archived checkpoint reports
+docs/                  consistency notes for code, stored results, and paper text
 ```
 
-The core dependency direction is intentionally simple: scripts call `src/crowd_evac/`; the package does not depend on any UI code.
-
-## Install
+## Installation
 
 Use Python 3.10 or newer.
 
 ```bash
-pip install -r requirements.txt
-```
-
-Optional editable install:
-
-```bash
-pip install -e .
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -e .
 ```
 
 ## Smoke Test
-
-Run this first to check that the hospital-corridor simulator and GA parameter expansion work:
 
 ```bash
 python scripts/smoke_test.py
 ```
 
-## Fast Pipeline Check
+## One-Command Quick Check
 
-These commands use tiny GA budgets and seed counts. They are meant to verify that every experiment script runs and writes the expected CSV, JSON, and figure outputs without waiting for the full paper run.
+This runs the smoke test and tiny versions of Experiments 1-4. Outputs are written under `results/quick_check/`.
 
 ```bash
-python scripts/run_experiment1_hospital.py --quick --out results/quick_experiment1
-python scripts/run_experiment2_hospital.py --quick --out results/quick_experiment2
-python scripts/run_experiment3_hospital.py --quick --out results/quick_experiment3
-python scripts/run_experiment4_hospital.py --quick --params-json results/quick_experiment1/runs/run_01/best_ga.json --out results/quick_experiment4
+python scripts/run_quick_pipeline.py
 ```
 
-## Full Paper Experiments
+## Full Experiment Commands
 
-Run the experiments below to reproduce the results and plots used in the latest paper draft. Defaults encode the reported hospital-corridor layout, 40 agents, GA settings, weights, and seeds.
-
-Experiment 1, baseline stability and parameter variance:
+Full runs are substantially slower than quick checks because the default GA evaluates 600 candidates per independent run and each candidate is averaged over multiple simulation seeds.
 
 ```bash
 python scripts/run_experiment1_hospital.py
-```
-
-Experiment 2, fitness-weight sensitivity and Pareto structure:
-
-```bash
 python scripts/run_experiment2_hospital.py
-```
-
-Experiment 3, GA hyperparameter ablation under a fixed 600-evaluation budget:
-
-```bash
 python scripts/run_experiment3_hospital.py
-```
-
-Experiment 4, population heterogeneity stress test using the Experiment 1 run with GA seed `606`:
-
-```bash
 python scripts/run_experiment4_hospital.py
 ```
 
-Experiment 4 depends on `results/experiment1_baseline_stability_hospital/summary_per_run.csv` by default. If you want to use a specific parameter file instead, pass `--params-json` with a JSON containing `params`, `full_params`, or `active_params`.
+Experiment 4 uses the Experiment 1 GA seed `606` parameters by default. To use an explicit parameter JSON, pass `--params-json`.
 
-## Output Files
+## Results Semantics
 
-Each experiment writes a self-contained result folder under `results/`.
+`results/` is ignored and is only for newly generated runtime outputs. `reference_results/` is tracked and contains the cleaned outputs used for the submitted report. Do not overwrite `reference_results/` with quick-test outputs.
 
-Experiment 1 writes:
-
-```text
-results/experiment1_baseline_stability_hospital/
-├── summary_per_run.csv
-├── ga_convergence_all_runs.csv
-├── aggregate_stats.json
-├── ga_convergence_runs.png
-├── parameter_variance_boxplot.png
-└── runs/run_*/best_ga.json, ga_history.json, meta.json, evaluations_ga.csv
-```
-
-Experiment 2 writes:
-
-```text
-results/experiment2_weight_sensitivity_hospital/
-├── summary_by_weights.csv
-├── all_ga_seed_attempts.csv
-├── aggregate_stats.json
-├── pareto_time_vs_fairness.png
-└── weights_*/best_ga.json, ga_history.json, best_selected.json, meta.json
-```
-
-Experiment 3 writes:
-
-```text
-results/experiment3_ga_ablation_hospital/
-├── summary_per_run.csv
-├── convergence_by_eval.csv
-├── aggregate_stats.json
-├── convergence_vs_evaluations.png
-├── best_fitness_boxplot_by_config.png
-└── configs/*/seed_*/best_ga.json, ga_history.json, meta.json, evaluations_ga.csv
-```
-
-Experiment 4 writes:
-
-```text
-results/experiment4_population_stress_hospital/
-├── fixed_params.json
-├── per_seed_results.csv
-├── aggregate_stats.json
-├── evacuation_time_by_scenario.png
-└── fairness_gap_by_scenario.png
-```
-
-## Re-running Plots From Existing Data
-
-Experiment 2 supports rebuilding statistics and plots without rerunning the GA sweep:
+Verify the stored reference outputs with:
 
 ```bash
-python scripts/run_experiment2_hospital.py --recover
+python scripts/verify_reference_results.py
 ```
 
-The other paper scripts currently regenerate plots as part of their normal run because their plotting is directly tied to the experiment summary CSVs.
+## Method Configuration
 
-## What Is Optimized
+| Component | Setting |
+| --- | --- |
+| Layout | `hospital_corridor` |
+| Main population | 28 high-mobility, 12 low-mobility agents |
+| Stress populations | 20/20, 32/8, 8/32 high/low agents |
+| Speeds | high: 1.5 m/s, low: 0.7 m/s |
+| Simulation | `dt=0.1`, `max_ticks=1000`, max duration 100 s |
+| Optimized parameters | `accel_factor`, `agent_rep_weight`, `agent_radius` |
+| Fixed parameters | `wall_rep_weight=0.5`, `wall_radius=1.0` |
+| Default GA | population 24, generations 25, elites 2, tournament size 3 |
+| Fitness weights | time 1.0, collisions 0.05, congestion 1.0, fairness 2.0 |
 
-The GA optimizes three continuous local movement parameters: acceleration factor, agent-agent repulsion weight, and agent-agent interaction radius. Wall repulsion weight and wall interaction radius are fixed in `src/crowd_evac/config.py`, matching the paper's focus on interpersonal movement rules in the hospital-corridor scenario.
+See `REPRODUCIBILITY.md` for full simulator mechanics, seeds, thresholds, waypoint routing, stall recovery, and low-mobility-specific rules.
+
+## Generated Artifacts
+
+Experiment 1 writes `summary_per_run.csv`, `ga_convergence_all_runs.csv`, `aggregate_stats.json`, convergence and parameter-variance plots, and per-run GA histories/evaluation logs.
+
+Experiment 2 writes `summary_by_weights.csv`, `all_ga_seed_attempts.csv`, `aggregate_stats.json`, a time-fairness plot, and per-weight selected GA outputs.
+
+Experiment 3 writes `summary_per_run.csv`, `convergence_by_eval.csv`, `aggregate_stats.json`, convergence and final-fitness plots, and per-configuration GA outputs.
+
+Experiment 4 writes `fixed_params.json`, `per_seed_results.csv`, `aggregate_stats.json`, and scenario boxplots.
+
+The submitted report is `reports/final_report.pdf`.
+
+## Reproducibility Notes
+
+Stored reference outputs are verified from files, while full recomputation requires the expensive experiment commands above. Known paper-text and interpretation limitations are documented in `docs/PAPER_CODE_CONSISTENCY.md`.

@@ -1,0 +1,18 @@
+﻿{
+  "source_summary": "reference_results/experiment1_baseline_stability_hospital/summary_per_run.csv",
+  "selected_run": 6,
+  "selected_ga_seed": 606,
+  "exp1_best_fitness": 52.279248192708664,
+  "active_params": [
+    3.743071817950133,
+    4.366113659694787,
+    0.9244952638912916
+  ],
+  "full_params": [
+    3.743071817950133,
+    4.366113659694787,
+    0.9244952638912916,
+    0.5,
+    1.0
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "n_runs": 10,
+  "best_fitness": {
+    "mean": 56.959354576880045,
+    "std": 12.006383167049705,
+    "mean_ci95": [
+      52.83393834771636,
+      64.72035771935512
+    ],
+    "std_ci95": [
+      0.5013400627110635,
+      18.436214716297485
+    ],
+    "min": 52.279248192708664,
+    "max": 91.06569648869856
+  },
+  "accel_factor": {
+    "mean": 3.664841445291742,
+    "std": 0.5780868665021984,
+    "mean_ci95": [
+      3.351495494518685,
+      4.036234812060095
+    ],
+    "std_ci95": [
+      0.2974190896165972,
+      0.768804137853364
+    ],
+    "min": 3.0501255794466564,
+    "max": 4.876864050318318
+  },
+  "agent_rep_weight": {
+    "mean": 3.8193271092690266,
+    "std": 1.1071228465319665,
+    "mean_ci95": [
+      3.0685875473233257,
+      4.328490554553793
+    ],
+    "std_ci95": [
+      0.2520546739641125,
+      1.6650837943548609
+    ],
+    "min": 0.886830956655152,
+    "max": 5.0
+  },
+  "agent_radius": {
+    "mean": 1.0179104904447591,
+    "std": 0.3811510360841571,
+    "mean_ci95": [
+      0.8903070160241735,
+      1.263033438428809
+    ],
+    "std_ci95": [
+      0.009359129359626468,
+      0.5848428608263119
+    ],
+    "min": 0.8784370911046397,
+    "max": 2.101674746106929
+  },
+  "mean_time": {
+    "mean": 30.901,
+    "std": 0.9788025564149517,
+    "mean_ci95": [
+      30.270974999999996,
+      31.420000000000005
+    ],
+    "std_ci95": [
+      0.3681990697984105,
+      1.3933292737651388
+    ],
+    "min": 28.65,
+    "max": 32.3
+  },
+  "mean_collisions": {
+    "mean": 134.02000000000004,
+    "std": 266.37201971845485,
+    "mean_ci95": [
+      45.789,
+      304.77500000000003
+    ],
+    "std_ci95": [
+      6.019852478890697,
+      408.56070068721203
+    ],
+    "min": 34.0,
+    "max": 891.7
+  },
+  "mean_fairness_gap": {
+    "mean": 8.774964285714287,
+    "std": 0.337560045935524,
+    "mean_ci95": [
+      8.567940476190477,
+      8.96589523809524
+    ],
+    "std_ci95": [
+      0.14139938678751882,
+      0.47458895012787605
+    ],
+    "min": 8.084880952380953,
+    "max": 9.356071428571429
+  },
+  "convergence_by_generation": [
+    {
+      "index": 0,
+      "generation": 0,
+      "mean_best_fitness": 102.79495255419563,
+      "std_best_fitness": 42.03644137193054
+    },
+    {
+      "index": 1,
+      "generation": 1,
+      "mean_best_fitness": 69.16407552607997,
+      "std_best_fitness": 18.336093185809435
+    },
+    {
+      "index": 2,
+      "generation": 2,
+      "mean_best_fitness": 65.99151889231271,
+      "std_best_fitness": 13.979142358305591
+    },
+    {
+      "index": 3,
+      "generation": 3,
+      "mean_best_fitness": 64.81214451181862,
+      "std_best_fitness": 14.052844175441706
+    },
+    {
+      "index": 4,
+      "generation": 4,
+      "mean_best_fitness": 63.476082002664825,
+      "std_best_fitness": 12.44585126444802
+    },
+    {
+      "index": 5,
+      "generation": 5,
+      "mean_best_fitness": 62.466256646192505,
+      "std_best_fitness": 12.525180801315893
+    },
+    {
+      "index": 6,
+      "generation": 6,
+      "mean_best_fitness": 61.80829892665033,
+      "std_best_fitness": 12.667973442607407
+    },
+    {
+      "index": 7,
+      "generation": 7,
+      "mean_best_fitness": 60.43786381612365,
+      "std_best_fitness": 12.913415767523217
+    },
+    {
+      "index": 8,
+      "generation": 8,
+      "mean_best_fitness": 60.005361775842836,
+      "std_best_fitness": 12.912310902609944
+    },
+    {
+      "index": 9,
+      "generation": 9,
+      "mean_best_fitness": 59.382059061851734,
+      "std_best_fitness": 13.051552457580986
+    },
+    {
+      "index": 10,
+      "generation": 10,
+      "mean_best_fitness": 59.302276648950354,
+      "std_best_fitness": 13.075002323811125
+    },
+    {
+      "index": 11,
+      "generation": 11,
+      "mean_best_fitness": 58.68888038638895,
+      "std_best_fitness": 12.933095480937363
+    },
+    {
+      "index": 12,
+      "generation": 12,
+      "mean_best_fitness": 58.431006020123064,
+      "std_best_fitness": 12.653283437074851
+    },
+    {
+      "index": 13,
+      "generation": 13,
+      "mean_best_fitness": 58.431006020123064,
+      "std_best_fitness": 12.653283437074851
+    },
+    {
+      "index": 14,
+      "generation": 14,
+      "mean_best_fitness": 58.212420011738665,
+      "std_best_fitness": 12.428310921278058
+    },
+    {
+      "index": 15,
+      "generation": 15,
+      "mean_best_fitness": 58.09394209524819,
+      "std_best_fitness": 12.315099712550607
+    },
+    {
+      "index": 16,
+      "generation": 16,
+      "mean_best_fitness": 57.7647387095134,
+      "std_best_fitness": 12.146887103010178
+    },
+    {
+      "index": 17,
+      "generation": 17,
+      "mean_best_fitness": 57.65603688252069,
+      "std_best_fitness": 12.147474006272779
+    },
+    {
+      "index": 18,
+      "generation": 18,
+      "mean_best_fitness": 57.611060234615344,
+      "std_best_fitness": 12.068201172362134
+    },
+    {
+      "index": 19,
+      "generation": 19,
+      "mean_best_fitness": 57.50697938990479,
+      "std_best_fitness": 11.889218985192127
+    },
+    {
+      "index": 20,
+      "generation": 20,
+      "mean_best_fitness": 57.39819993424106,
+      "std_best_fitness": 11.920463337261156
+    },
+    {
+      "index": 21,
+      "generation": 21,
+      "mean_best_fitness": 57.17861603003689,
+      "std_best_fitness": 11.988195063280296
+    },
+    {
+      "index": 22,
+      "generation": 22,
+      "mean_best_fitness": 57.1596702025643,
+      "std_best_fitness": 11.928358033588523
+    },
+    {
+      "index": 23,
+      "generation": 23,
+      "mean_best_fitness": 56.95935457688006,
+      "std_best_fitness": 12.006383167049705
+    },
+    {
+      "index": 24,
+      "generation": 24,
+      "mean_best_fitness": 56.95935457688006,
+      "std_best_fitness": 12.006383167049705
+    }
+  ],
+  "mann_kendall_mean_convergence": {
+    "n": 25,
+    "S": -298,
+    "var_S": 1831.3333333333333,
+    "Z": -6.940212195759553,
+    "p_value": 3.915090474038152e-12
+  },
+  "sign_test_improvement": {
+    "runs_with_improvement": 10,
+    "total_runs": 10,
+    "p_value_two_sided": 0.001953125,
+    "mean_improvement": 45.83559797731558,
+    "median_improvement": 37.52183017636578
+  }
+}

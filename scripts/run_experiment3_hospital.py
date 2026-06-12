@@ -389,6 +389,7 @@ def plot_convergence_vs_evaluations(out_root, convergence_df, configs=None, eval
 def plot_best_fitness_boxplot(out_root, summary_df, configs=None):
     configs = GA_CONFIGS if configs is None else configs
     png_path = out_root / "best_fitness_boxplot_by_config.png"
+    plot_rng = np.random.default_rng(0)
 
     labels = [configs[name]["label"] for name in configs]
     data = [
@@ -404,7 +405,7 @@ def plot_best_fitness_boxplot(out_root, summary_df, configs=None):
         patch.set_alpha(0.35)
 
     for idx, (name, values) in enumerate(zip(configs, data), start=1):
-        x = np.random.normal(loc=idx, scale=0.04, size=len(values))
+        x = plot_rng.normal(loc=idx, scale=0.04, size=len(values))
         ax.scatter(x, values, s=28, alpha=0.75, color=CONFIG_COLORS[name], edgecolors="black", linewidths=0.4)
 
     ax.set_title("Final Best Fitness by GA Configuration (10 Seeds)")

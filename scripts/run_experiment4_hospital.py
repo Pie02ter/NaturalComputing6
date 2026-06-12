@@ -21,12 +21,13 @@ from crowd_evac.simulator import run_simulation
 
 
 DEFAULT_EXP1_SUMMARY = ROOT / "results" / "experiment1_baseline_stability_hospital" / "summary_per_run.csv"
+REFERENCE_EXP1_SUMMARY = "reference_results/experiment1_baseline_stability_hospital/summary_per_run.csv"
 
 TOTAL_AGENTS = 40
 
 POPULATION_SCENARIOS = {
     "balanced_50_50": {
-        "label": "Default (50% high / 50% low)",
+        "label": "Balanced (20 high / 20 low)",
         "num_high": 20,
         "num_low": 20,
         "high_fraction": 0.5,
@@ -116,8 +117,17 @@ def load_params_from_exp1(summary_path, ga_seed):
         float(selected_row["agent_radius"]),
     ]
     full_params = merge_active_to_full(active).tolist()
+    source_summary = summary_path.as_posix()
+    try:
+        source_summary = summary_path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        pass
+
+    if source_summary == "results/experiment1_baseline_stability_hospital/summary_per_run.csv":
+        source_summary = REFERENCE_EXP1_SUMMARY
+
     return {
-        "source_summary": str(summary_path.resolve()),
+        "source_summary": source_summary,
         "selected_run": int(selected_row["run"]) if "run" in df.columns else None,
         "selected_ga_seed": int(selected_row["ga_seed"]),
         "exp1_best_fitness": float(selected_row["best_fitness"]),
@@ -127,6 +137,7 @@ def load_params_from_exp1(summary_path, ga_seed):
 
 
 def load_params_from_json(params_json_path):
+    params_json_path = Path(params_json_path)
     payload = json.loads(Path(params_json_path).read_text(encoding="utf-8"))
     if "full_params" in payload:
         full_params = [float(x) for x in payload["full_params"]]
@@ -139,7 +150,7 @@ def load_params_from_json(params_json_path):
     if len(full_params) != 5:
         raise ValueError(f"Expected 5 full parameters, got {len(full_params)}")
     return {
-        "source_summary": str(Path(params_json_path).resolve()),
+        "source_summary": params_json_path.as_posix(),
         "selected_run": None,
         "selected_ga_seed": None,
         "exp1_best_fitness": None,
@@ -246,6 +257,7 @@ def build_aggregate_stats(df):
 def plot_metric_boxplots(out_root, df):
     time_png = out_root / "evacuation_time_by_scenario.png"
     gap_png = out_root / "fairness_gap_by_scenario.png"
+    plot_rng = np.random.default_rng(0)
 
     scenario_order = list(POPULATION_SCENARIOS.keys())
     labels = [POPULATION_SCENARIOS[name]["label"] for name in scenario_order]
@@ -271,7 +283,7 @@ def plot_metric_boxplots(out_root, df):
             patch.set_facecolor("#93c5fd")
             patch.set_alpha(0.45)
         for idx, values in enumerate(data, start=1):
-            x = np.random.normal(loc=idx, scale=0.04, size=len(values))
+            x = plot_rng.normal(loc=idx, scale=0.04, size=len(values))
             ax.scatter(x, values, s=22, alpha=0.65, color="#1d4ed8", edgecolors="black", linewidths=0.3)
         ax.set_title(title)
         ax.set_ylabel(ylabel)
