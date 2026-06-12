@@ -1,6 +1,6 @@
 {
-  "generated_timestamp_utc": "2026-06-12T14:48:06Z",
-  "provenance": "Cleaned stored outputs used for the submitted paper; restricted to the four final experiment folders and cleaned of OS metadata and private absolute paths.",
+  "generated_timestamp_utc": "2026-06-12T19:13:15Z",
+  "provenance": "Cleaned stored outputs used for the submitted paper; restricted to the four final experiment folders and cleaned of OS metadata and private absolute paths. Text-file sizes and hashes are computed with LF-normalized line endings.",
   "experiment_directories": [
     "experiment1_baseline_stability_hospital",
     "experiment2_weight_sensitivity_hospital",
@@ -93,8 +93,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_01/evaluations_ga.csv",
-      "size_bytes": 424559,
-      "sha256": "4508e7104a519bd2f638e4809c01b041d68aca2884a9b13ceb3230e5863bf66f"
+      "size_bytes": 423958,
+      "sha256": "75328c30ac53fd6c2641b237aee9c3e53ad5ab964393c7f5575f3f004a42145c"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_01/ga_history.json",
@@ -113,8 +113,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_02/evaluations_ga.csv",
-      "size_bytes": 421913,
-      "sha256": "51cab56ca2d04935a3c968f4fcea46360f4aa95fa0fb429b54d0f5f1fdc711b6"
+      "size_bytes": 421312,
+      "sha256": "4b78378f8bb03f0864d0f95faa2b9457a458159df62c6a066b691c4046fec6c0"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_02/ga_history.json",
@@ -133,8 +133,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_03/evaluations_ga.csv",
-      "size_bytes": 424698,
-      "sha256": "474c6511717374aae921c6ddd31efcaa9b9447ab605a964d22620f4ffbbfb4d8"
+      "size_bytes": 424097,
+      "sha256": "9cf0703ee2dbfad7df5253449ef0b5db08ec1f86662d5db8dda3641108f159d7"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_03/ga_history.json",
@@ -153,8 +153,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_04/evaluations_ga.csv",
-      "size_bytes": 422046,
-      "sha256": "f7ea8d3660c4aa3fe0d89bc6aae27f1073c66dfdbebc01454e7dc4865444528e"
+      "size_bytes": 421445,
+      "sha256": "bd12ff5ff117093b6e0a8b0077a057dd5418763d76fb82c962968ebca20bfcfb"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_04/ga_history.json",
@@ -173,8 +173,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_05/evaluations_ga.csv",
-      "size_bytes": 421280,
-      "sha256": "eedcbb2198d421fa605863c970380d45b5124d15936a652e996da361cae83ca4"
+      "size_bytes": 420679,
+      "sha256": "65f4264dc9a2a7a845cc97dee3e909fea800af9f7c2b954aaeb3ed8cc86d9999"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_05/ga_history.json",
@@ -193,8 +193,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_06/evaluations_ga.csv",
-      "size_bytes": 422039,
-      "sha256": "b2be5dca22d42ba80b9f1b6332d28818ca017fe63b792a80e216de54bc4c00b2"
+      "size_bytes": 421438,
+      "sha256": "1fc0f12597ee2a2741b528a37e620730a976d06d88795948b1489c0d60d4ec20"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_06/ga_history.json",
@@ -213,8 +213,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_07/evaluations_ga.csv",
-      "size_bytes": 422510,
-      "sha256": "5b9d9181707e301ef41b4eebd95417bdc7cdda5cae5368c650455145f86d3953"
+      "size_bytes": 421909,
+      "sha256": "4e4e6ee78d132cb9b64dddafe24910d30a13ce73a2ffa839452f4fe2c98cc4dc"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_07/ga_history.json",
@@ -233,8 +233,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_08/evaluations_ga.csv",
-      "size_bytes": 424999,
-      "sha256": "2ff83a7fbd2a8176eb9718fa056eb9ecf665c199fab692ce678398f314426055"
+      "size_bytes": 424398,
+      "sha256": "acb3d29a40d1de5bd264d9dfd78fdc67100588f315151dd7880d3d61addbc786"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_08/ga_history.json",
@@ -253,8 +253,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_09/evaluations_ga.csv",
-      "size_bytes": 429828,
-      "sha256": "7ec496211ffbfb9068c01399f5b6e8e86753ea73e784659ba8ec7331fe6e4214"
+      "size_bytes": 429227,
+      "sha256": "17a74bbde60030e5c20c23636aebde637ad6575fd9242c6e79c8fed1ae0e376b"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_09/ga_history.json",
@@ -273,8 +273,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_10/evaluations_ga.csv",
-      "size_bytes": 423485,
-      "sha256": "330ecab3b521b4d5e7336c990b2ce1fddc7659c3c7d8ea34b5c4e7c495300b35"
+      "size_bytes": 422884,
+      "sha256": "4de6a370ecbdc210973459c86b3da78acd89e946595aa5d790ff3f826dde9dd5"
     },
     {
       "path": "experiment1_baseline_stability_hospital/runs/run_10/ga_history.json",
@@ -288,8 +288,8 @@
     },
     {
       "path": "experiment1_baseline_stability_hospital/summary_per_run.csv",
-      "size_bytes": 1326,
-      "sha256": "8f1720a34eb300294b7c763343801c56812fef7bf76a0ff9954ebf9c8ddc6584"
+      "size_bytes": 1315,
+      "sha256": "65a53d7f8599e731b9fd4f0aeb97e8ffb03da8d5e99a184b5a7f01db0e1877f4"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/aggregate_stats.json",
@@ -298,8 +298,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/all_ga_seed_attempts.csv",
-      "size_bytes": 4047,
-      "sha256": "49dcd7a17b2006c39e63cdc4846d2b74f8ad9b256d8644a9998f1ef03953a4d1"
+      "size_bytes": 4021,
+      "sha256": "b103a383b3ceeb3b9004d77e5c1a26a00438a5610af91e30559307d15f0bb3d8"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/pareto_time_vs_fairness.pdf",
@@ -313,8 +313,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/summary_by_weights.csv",
-      "size_bytes": 986,
-      "sha256": "66f8c02aaee1e8363cddef6eea82ae00844ea5266826ed6674b2e2294c834af4"
+      "size_bytes": 980,
+      "sha256": "53388f0f2488072faeb417ac56a71fc1c12d35147f53bd916686035a1ab39e71"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/best_ga.json",
@@ -343,8 +343,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_101/evaluations_ga.csv",
-      "size_bytes": 423663,
-      "sha256": "91884881a3642c041eb1d5062be2a7b86a4d4c5da7579e548d33a965b21f5601"
+      "size_bytes": 423062,
+      "sha256": "3b913c06bf3d0343612cec5268c1adb83e109f30b0f0381681bd76eba1437409"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_101/ga_history.json",
@@ -358,8 +358,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_202/evaluations_ga.csv",
-      "size_bytes": 426495,
-      "sha256": "9292bc8003f1b2a1b771027a041304ceeda5d63ea68810045af777c55bcc9b5a"
+      "size_bytes": 425894,
+      "sha256": "610be21ac927a05bf292a232c5f4e591984da25d64a843031df0236838893949"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_202/ga_history.json",
@@ -373,8 +373,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_303/evaluations_ga.csv",
-      "size_bytes": 426511,
-      "sha256": "4e47e35a1a1988cc16495db03e7744304c62e1bdce61c41189aa4ca805ad8eca"
+      "size_bytes": 425910,
+      "sha256": "b53f202cf98b4521627f4f3f01b9d33d188722b130af34aa450760421948702d"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_303/ga_history.json",
@@ -388,8 +388,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_404/evaluations_ga.csv",
-      "size_bytes": 424363,
-      "sha256": "70d86306074596b32b246fab4c5c53d21d1103077063705c5de0759220ec7594"
+      "size_bytes": 423762,
+      "sha256": "9687459b957ce80ed5af07bea3e16d042f7e3891d3c92d5d6fcf095b339fae27"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_404/ga_history.json",
@@ -403,8 +403,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_505/evaluations_ga.csv",
-      "size_bytes": 423394,
-      "sha256": "438a134aa5cdfa0907254b45021a702cdc0a948e0e987eb927ed492e6d929eca"
+      "size_bytes": 422793,
+      "sha256": "69aa41efee9e2e74ae9b280bc598b4bc39f06b95f3bdf33dcb2df8c1d1fd98d2"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT0_wF1/seed_505/ga_history.json",
@@ -438,8 +438,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_101/evaluations_ga.csv",
-      "size_bytes": 418370,
-      "sha256": "90bd6e0dced4ab46851b76412ef789fadef80d3081903e130cbe5a6ee38f7651"
+      "size_bytes": 417769,
+      "sha256": "84457b2ddafdd28e1ebc8aa24763e48ec7d3dd3b5b4acb23b4cf576e52e1591b"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_101/ga_history.json",
@@ -453,8 +453,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_202/evaluations_ga.csv",
-      "size_bytes": 417471,
-      "sha256": "b9efedc471d9a9a72053ef96a89ae7e9ed48e73c7811afc913b9f3a3226427bb"
+      "size_bytes": 416870,
+      "sha256": "45a4a73bf3f3db45936c23deb48db71070bfdb0b3cd911f1763cb18265af1c9e"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_202/ga_history.json",
@@ -468,8 +468,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_303/evaluations_ga.csv",
-      "size_bytes": 419870,
-      "sha256": "ed873b94e28e94c5ff5ef3301eb9d73324f83bc04c281e07ee791e1b0d369b47"
+      "size_bytes": 419269,
+      "sha256": "2fcd6e6d415ffa8e764bfce8ecd885b6fd2a0fd9136b3de77370a5b61fc33c6e"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_303/ga_history.json",
@@ -483,8 +483,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_404/evaluations_ga.csv",
-      "size_bytes": 417982,
-      "sha256": "9de46326a5adf43a45ff0b48fd68800d389b4d973e740e37724391a040b8d267"
+      "size_bytes": 417381,
+      "sha256": "d1ad965eb6152d55cd92a8e76ae43ac1b1b2fd21512675c3dd35ca16b69859d6"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_404/ga_history.json",
@@ -498,8 +498,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_505/evaluations_ga.csv",
-      "size_bytes": 413068,
-      "sha256": "8dd8f2c151ca269ccdac83a22914b3f9a6efb633202dd578afc013b0f987c263"
+      "size_bytes": 412467,
+      "sha256": "4bdbb61fe504c2d33401a252a260aab3d9854f4a7de8cbb01baa6703f616048e"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0/seed_505/ga_history.json",
@@ -533,8 +533,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_101/evaluations_ga.csv",
-      "size_bytes": 423626,
-      "sha256": "48c4dd8feea4085ad56a7e4c17949de8501e0a64737b5f0f5c5e2178384922fd"
+      "size_bytes": 423025,
+      "sha256": "6ca165f7697245da580ef77488be4bab3228d7fda145ab3475b289c73b2a58e6"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_101/ga_history.json",
@@ -548,8 +548,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_202/evaluations_ga.csv",
-      "size_bytes": 423202,
-      "sha256": "051a335120c9290349da9f1c49732f19b90af9210ce8fc749aae86ef686b5ec5"
+      "size_bytes": 422601,
+      "sha256": "3ba329a3003ceae69e8de76ca6e058c620c8963872f5e04340e26c3fa2e27680"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_202/ga_history.json",
@@ -563,8 +563,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_303/evaluations_ga.csv",
-      "size_bytes": 423746,
-      "sha256": "b2b1277d456a752ac67da0c8b2e552db70b7ccdbe33161548a0f6c419130666a"
+      "size_bytes": 423145,
+      "sha256": "679670cd2213b03770f9fa76b8230d543020da7ddbbdc84c5de1cdd15530a4d9"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_303/ga_history.json",
@@ -578,8 +578,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_404/evaluations_ga.csv",
-      "size_bytes": 423526,
-      "sha256": "10cc4f63ab7337647a824b0bf55282bb2cf2531136bb7cc6f564308eaae72ee6"
+      "size_bytes": 422925,
+      "sha256": "38777fffaecf95e2adc43a47b27c8f5525c86755cc60db5110ea3ddb501eeab7"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_404/ga_history.json",
@@ -593,8 +593,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_505/evaluations_ga.csv",
-      "size_bytes": 423076,
-      "sha256": "0766180a23a4dd88e5d5ec488726bf3c36b8cc0906bcabcc4abeb8be24f5c139"
+      "size_bytes": 422475,
+      "sha256": "4e643c05c0f60e26350196f6d29d10bf08e13a28ce36eb5290a3d00e90b3d425"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF0p5/seed_505/ga_history.json",
@@ -628,8 +628,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_101/evaluations_ga.csv",
-      "size_bytes": 424015,
-      "sha256": "36830b4aa721676ecbcfa0ed4d48a210e298d9e6853e5e2d5c2280436bade6b3"
+      "size_bytes": 423414,
+      "sha256": "0f8b83311ef7ea5d697d372815d1bf3106a4dc55692dfc015b27439b36b73fd7"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_101/ga_history.json",
@@ -643,8 +643,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_202/evaluations_ga.csv",
-      "size_bytes": 422557,
-      "sha256": "552ec10cec7d183c89e1b3cfe0167cd516849d2b934ef5d52d53f15fb2d479de"
+      "size_bytes": 421956,
+      "sha256": "735ab92b8898066f52fb606204de5306139ba2f5b19c7a967c7ec93e6c930afa"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_202/ga_history.json",
@@ -658,8 +658,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_303/evaluations_ga.csv",
-      "size_bytes": 424530,
-      "sha256": "7e1889e07fbdc517401b065c7baf5ff14750506f90e0703abc51fff6ccd540cb"
+      "size_bytes": 423929,
+      "sha256": "bf6511b37259b465d5de170b0902d065f408c602b7db8eaf299626301b45eeda"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_303/ga_history.json",
@@ -673,8 +673,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_404/evaluations_ga.csv",
-      "size_bytes": 421669,
-      "sha256": "2582ecfd8d6ae7f3372cbf5cdbe18a1a6519e1ad401cfb13d44c83da3e822db5"
+      "size_bytes": 421068,
+      "sha256": "7328445af0f0de2226b147b464bbcf02b53267a2f259e1f90f0d43bc0c88bbff"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_404/ga_history.json",
@@ -688,8 +688,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_505/evaluations_ga.csv",
-      "size_bytes": 422511,
-      "sha256": "17c1e4400bf9f1ef794a12b1a761469430a87bbb40f429c120ab0d71a0703fca"
+      "size_bytes": 421910,
+      "sha256": "3e1f09837fb5f1d9e4c2446bd9248b7f9ed2ecf6c65646c3e92d0b43145aed0b"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF1/seed_505/ga_history.json",
@@ -723,8 +723,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_101/evaluations_ga.csv",
-      "size_bytes": 424559,
-      "sha256": "4508e7104a519bd2f638e4809c01b041d68aca2884a9b13ceb3230e5863bf66f"
+      "size_bytes": 423958,
+      "sha256": "75328c30ac53fd6c2641b237aee9c3e53ad5ab964393c7f5575f3f004a42145c"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_101/ga_history.json",
@@ -738,8 +738,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_202/evaluations_ga.csv",
-      "size_bytes": 421913,
-      "sha256": "51cab56ca2d04935a3c968f4fcea46360f4aa95fa0fb429b54d0f5f1fdc711b6"
+      "size_bytes": 421312,
+      "sha256": "4b78378f8bb03f0864d0f95faa2b9457a458159df62c6a066b691c4046fec6c0"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_202/ga_history.json",
@@ -753,8 +753,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_303/evaluations_ga.csv",
-      "size_bytes": 424698,
-      "sha256": "474c6511717374aae921c6ddd31efcaa9b9447ab605a964d22620f4ffbbfb4d8"
+      "size_bytes": 424097,
+      "sha256": "9cf0703ee2dbfad7df5253449ef0b5db08ec1f86662d5db8dda3641108f159d7"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_303/ga_history.json",
@@ -768,8 +768,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_404/evaluations_ga.csv",
-      "size_bytes": 422046,
-      "sha256": "f7ea8d3660c4aa3fe0d89bc6aae27f1073c66dfdbebc01454e7dc4865444528e"
+      "size_bytes": 421445,
+      "sha256": "bd12ff5ff117093b6e0a8b0077a057dd5418763d76fb82c962968ebca20bfcfb"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_404/ga_history.json",
@@ -783,8 +783,8 @@
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_505/evaluations_ga.csv",
-      "size_bytes": 421280,
-      "sha256": "eedcbb2198d421fa605863c970380d45b5124d15936a652e996da361cae83ca4"
+      "size_bytes": 420679,
+      "sha256": "65f4264dc9a2a7a845cc97dee3e909fea800af9f7c2b954aaeb3ed8cc86d9999"
     },
     {
       "path": "experiment2_weight_sensitivity_hospital/weights_wT1_wF2/seed_505/ga_history.json",
@@ -813,8 +813,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_1001/evaluations_ga.csv",
-      "size_bytes": 423485,
-      "sha256": "330ecab3b521b4d5e7336c990b2ce1fddc7659c3c7d8ea34b5c4e7c495300b35"
+      "size_bytes": 422884,
+      "sha256": "4de6a370ecbdc210973459c86b3da78acd89e946595aa5d790ff3f826dde9dd5"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_1001/ga_history.json",
@@ -833,8 +833,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_101/evaluations_ga.csv",
-      "size_bytes": 424559,
-      "sha256": "4508e7104a519bd2f638e4809c01b041d68aca2884a9b13ceb3230e5863bf66f"
+      "size_bytes": 423958,
+      "sha256": "75328c30ac53fd6c2641b237aee9c3e53ad5ab964393c7f5575f3f004a42145c"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_101/ga_history.json",
@@ -853,8 +853,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_202/evaluations_ga.csv",
-      "size_bytes": 421913,
-      "sha256": "51cab56ca2d04935a3c968f4fcea46360f4aa95fa0fb429b54d0f5f1fdc711b6"
+      "size_bytes": 421312,
+      "sha256": "4b78378f8bb03f0864d0f95faa2b9457a458159df62c6a066b691c4046fec6c0"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_202/ga_history.json",
@@ -873,8 +873,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_303/evaluations_ga.csv",
-      "size_bytes": 424698,
-      "sha256": "474c6511717374aae921c6ddd31efcaa9b9447ab605a964d22620f4ffbbfb4d8"
+      "size_bytes": 424097,
+      "sha256": "9cf0703ee2dbfad7df5253449ef0b5db08ec1f86662d5db8dda3641108f159d7"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_303/ga_history.json",
@@ -893,8 +893,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_404/evaluations_ga.csv",
-      "size_bytes": 422046,
-      "sha256": "f7ea8d3660c4aa3fe0d89bc6aae27f1073c66dfdbebc01454e7dc4865444528e"
+      "size_bytes": 421445,
+      "sha256": "bd12ff5ff117093b6e0a8b0077a057dd5418763d76fb82c962968ebca20bfcfb"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_404/ga_history.json",
@@ -913,8 +913,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_505/evaluations_ga.csv",
-      "size_bytes": 421280,
-      "sha256": "eedcbb2198d421fa605863c970380d45b5124d15936a652e996da361cae83ca4"
+      "size_bytes": 420679,
+      "sha256": "65f4264dc9a2a7a845cc97dee3e909fea800af9f7c2b954aaeb3ed8cc86d9999"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_505/ga_history.json",
@@ -933,8 +933,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_606/evaluations_ga.csv",
-      "size_bytes": 422039,
-      "sha256": "b2be5dca22d42ba80b9f1b6332d28818ca017fe63b792a80e216de54bc4c00b2"
+      "size_bytes": 421438,
+      "sha256": "1fc0f12597ee2a2741b528a37e620730a976d06d88795948b1489c0d60d4ec20"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_606/ga_history.json",
@@ -953,8 +953,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_707/evaluations_ga.csv",
-      "size_bytes": 422510,
-      "sha256": "5b9d9181707e301ef41b4eebd95417bdc7cdda5cae5368c650455145f86d3953"
+      "size_bytes": 421909,
+      "sha256": "4e4e6ee78d132cb9b64dddafe24910d30a13ce73a2ffa839452f4fe2c98cc4dc"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_707/ga_history.json",
@@ -973,8 +973,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_808/evaluations_ga.csv",
-      "size_bytes": 424999,
-      "sha256": "2ff83a7fbd2a8176eb9718fa056eb9ecf665c199fab692ce678398f314426055"
+      "size_bytes": 424398,
+      "sha256": "acb3d29a40d1de5bd264d9dfd78fdc67100588f315151dd7880d3d61addbc786"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_808/ga_history.json",
@@ -993,8 +993,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_909/evaluations_ga.csv",
-      "size_bytes": 429828,
-      "sha256": "7ec496211ffbfb9068c01399f5b6e8e86753ea73e784659ba8ec7331fe6e4214"
+      "size_bytes": 429227,
+      "sha256": "17a74bbde60030e5c20c23636aebde637ad6575fd9242c6e79c8fed1ae0e376b"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/A_default/seed_909/ga_history.json",
@@ -1013,8 +1013,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_1001/evaluations_ga.csv",
-      "size_bytes": 421516,
-      "sha256": "6eb4d92c5874560269a93d8c648cca438a5df9679bdfd168daa5c3e87da54273"
+      "size_bytes": 420915,
+      "sha256": "cd8f4e49c63df27b16acd9419065e77756f354c851b1bb2debb038782661d41c"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_1001/ga_history.json",
@@ -1033,8 +1033,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_101/evaluations_ga.csv",
-      "size_bytes": 420560,
-      "sha256": "75e441e70feb1d45943c1f61d04cf8961346e72c5ec3c223019e7af8d8bb2862"
+      "size_bytes": 419959,
+      "sha256": "57e3b3a1afd867e567faf00281dd02e5917ffeb66529d36da3de44ab77a16d06"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_101/ga_history.json",
@@ -1053,8 +1053,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_202/evaluations_ga.csv",
-      "size_bytes": 418841,
-      "sha256": "724717ba1ccd03a3530273c43b1039c6be39572add0a4267a5730d19fcf5e798"
+      "size_bytes": 418240,
+      "sha256": "eac71ee3ed8b58a4136235c1adb44c570f47a8ff6975f204e6ba3f4c57644413"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_202/ga_history.json",
@@ -1073,8 +1073,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_303/evaluations_ga.csv",
-      "size_bytes": 422789,
-      "sha256": "4a5e3c58edd964599f9dd82d16bc4b0d133b8f0f20aca24487c6be233be0f513"
+      "size_bytes": 422188,
+      "sha256": "7a811bdb01653809bf50e0df5d5f3e5dee298e87f127660c69557c4059c06bca"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_303/ga_history.json",
@@ -1093,8 +1093,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_404/evaluations_ga.csv",
-      "size_bytes": 419680,
-      "sha256": "052d4dbee330284df1c89ab6c8644d8301a8d88e01fef3c281e46e4abea28a53"
+      "size_bytes": 419079,
+      "sha256": "23cf8bb77b05c3bc22e5c0b88f0ef5733e47fbf1234edc14a606d9a72bb4e71b"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_404/ga_history.json",
@@ -1113,8 +1113,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_505/evaluations_ga.csv",
-      "size_bytes": 422343,
-      "sha256": "5e73622c8717198a425b0a775dd10e676ca6bc9850c531f190900defc076883c"
+      "size_bytes": 421742,
+      "sha256": "f342def832609fc5a0f632fbad74f964ae09d407f7b68a79d09852aef8136d22"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_505/ga_history.json",
@@ -1133,8 +1133,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_606/evaluations_ga.csv",
-      "size_bytes": 420469,
-      "sha256": "a44cb9ebdd27c1c6eafc59947179ee2f9a1f6722faaa79ffdabb8811fffa9b73"
+      "size_bytes": 419868,
+      "sha256": "70b016eb25684667856df508cb8774805c292a995bb4e63f2cb00a7e4bf30284"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_606/ga_history.json",
@@ -1153,8 +1153,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_707/evaluations_ga.csv",
-      "size_bytes": 419731,
-      "sha256": "a77c7b79d45c84a252a21ad3c1eda6a895a62d14a04b3a840de7db4d247668ba"
+      "size_bytes": 419130,
+      "sha256": "4c096b2970895965ef04b50f3dde582f5a4c42c0eedbdf73e3b01ce4eecad9b1"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_707/ga_history.json",
@@ -1173,8 +1173,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_808/evaluations_ga.csv",
-      "size_bytes": 421425,
-      "sha256": "9299280d37c6b8399c4295bcde522c7f9af159ff00d266980939bbc34e39723a"
+      "size_bytes": 420824,
+      "sha256": "989830da9d14cb4841e08e17e5877659be774c59c71c51e384273932f6c5afbe"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_808/ga_history.json",
@@ -1193,8 +1193,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_909/evaluations_ga.csv",
-      "size_bytes": 423527,
-      "sha256": "9fa8128b0c0013406177224aa86f48d2f7551e5888d552454614fc62468b5c64"
+      "size_bytes": 422926,
+      "sha256": "16a0b78c8d0b7ffb2a9b7e03b78a4b16909692f1ea18001c026cfae011cce906"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/B_exploration/seed_909/ga_history.json",
@@ -1213,8 +1213,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_1001/evaluations_ga.csv",
-      "size_bytes": 415920,
-      "sha256": "02ce1957b1d7cff9c86062ae16e3dd9c7bef2616568f73a95b3a509b9c61edda"
+      "size_bytes": 415319,
+      "sha256": "8be704bee57cdbcb722a6e94a48612adb2ccb7f4fabd01c58c7434967bb8270e"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_1001/ga_history.json",
@@ -1233,8 +1233,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_101/evaluations_ga.csv",
-      "size_bytes": 428702,
-      "sha256": "3601894693a15053a7db4593c40f2d59e9d54c4f1b08c7941a9166d095d1b36c"
+      "size_bytes": 428101,
+      "sha256": "12ca12b215fae75193f9b6e021bca32e54cadf0e7e2e13521c7ea64a91fdcb03"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_101/ga_history.json",
@@ -1253,8 +1253,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_202/evaluations_ga.csv",
-      "size_bytes": 430763,
-      "sha256": "896115f4ce456f4e78593076cd1f54beea443c55557f7ab77441e622c01f0559"
+      "size_bytes": 430162,
+      "sha256": "16cbc627d0ba3305cd7a452ecd97fc0f93b6b83418927f13887fdd599c78aa2c"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_202/ga_history.json",
@@ -1273,8 +1273,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_303/evaluations_ga.csv",
-      "size_bytes": 422007,
-      "sha256": "8222496bb79e2140b9dd1e639a6050e959d3e02054801e23992bb27738f11c32"
+      "size_bytes": 421406,
+      "sha256": "803b07978849ff8768651120c9fdd640cec7a4cd059dfe90932c8d8aa6caa47d"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_303/ga_history.json",
@@ -1293,8 +1293,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_404/evaluations_ga.csv",
-      "size_bytes": 427247,
-      "sha256": "14c940034a1bcba74cf6c7dc716e0049a8ca359ce6d2ca594b2cd50b83565ec6"
+      "size_bytes": 426646,
+      "sha256": "4879e07afa48cc3b22e35528f0120862d1a3b69e5a4c3851aa0b751b316f9a36"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_404/ga_history.json",
@@ -1313,8 +1313,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_505/evaluations_ga.csv",
-      "size_bytes": 429083,
-      "sha256": "8f4619e1d1a6fbc7d17b4d4d8e0a5a9ac45462f55f6d5724e58322129d5964fa"
+      "size_bytes": 428482,
+      "sha256": "8e008395f160e8b7685b7f4736d62053a0ba5b98ed6e5258e3024aaef7f3d88e"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_505/ga_history.json",
@@ -1333,8 +1333,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_606/evaluations_ga.csv",
-      "size_bytes": 422096,
-      "sha256": "19285800dc3649c4cfcc0795acaa1f778d3786dfbe9ead647a3dbc58413f9cd6"
+      "size_bytes": 421495,
+      "sha256": "e35e0e2f58434c1e02cf14a6c3bc91e04f490a3d6bc0750e31fced0e6e4d452d"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_606/ga_history.json",
@@ -1353,8 +1353,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_707/evaluations_ga.csv",
-      "size_bytes": 439334,
-      "sha256": "0385d7cbcaf98b70326706d9ecc8e90c4da5aff511cc5726ca39e57556f185ab"
+      "size_bytes": 438733,
+      "sha256": "80a36d0e0793f1e72de5742d66b915aa2ca05d6707d854f97302156e08b79f7a"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_707/ga_history.json",
@@ -1373,8 +1373,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_808/evaluations_ga.csv",
-      "size_bytes": 435253,
-      "sha256": "72aba43683bce06c038be0dc80ad48554f3ba980edfab0f17839457a11797ad5"
+      "size_bytes": 434652,
+      "sha256": "3e5db255810d278fa48a97ee858078dcae96145e931c517583520c6e24984224"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_808/ga_history.json",
@@ -1393,8 +1393,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_909/evaluations_ga.csv",
-      "size_bytes": 424884,
-      "sha256": "b360dc26d4749e12124d39ae99767c49c9fb49e0109fb3a1d007e7f9f79d9608"
+      "size_bytes": 424283,
+      "sha256": "6d35511823aff4484fa8b01aec088a6dbe0157bb164a27e53b4d351726ddff51"
     },
     {
       "path": "experiment3_ga_ablation_hospital/configs/C_exploitation/seed_909/ga_history.json",
@@ -1423,8 +1423,8 @@
     },
     {
       "path": "experiment3_ga_ablation_hospital/summary_per_run.csv",
-      "size_bytes": 5391,
-      "sha256": "b6ade88981aace8c908801fc6b05f2b22529d4a7f54475c2a39908ff0f209be0"
+      "size_bytes": 5360,
+      "sha256": "33a66070677d2201c086543f331b4582dabc3990bc94edb7511d6e3bf50f3f13"
     },
     {
       "path": "experiment4_population_stress_hospital/aggregate_stats.json",
@@ -1458,8 +1458,8 @@
     },
     {
       "path": "experiment4_population_stress_hospital/per_seed_results.csv",
-      "size_bytes": 10965,
-      "sha256": "044e851f37c50a50f7c799810252377942fc353fe9ca59c75ceb0775ea4d86e0"
+      "size_bytes": 10874,
+      "sha256": "0c2df9d8bc9598cf23995c8ba7b242d21ed0c17f5be83041750d83d738f020a9"
     }
   ]
 }

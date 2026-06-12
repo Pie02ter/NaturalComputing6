@@ -13,6 +13,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 REF = ROOT / "reference_results"
 DOC_EXTS = {".md", ".py", ".json", ".toml", ".txt", ".csv"}
+NORMALIZED_HASH_EXTS = {".md", ".json", ".toml", ".txt", ".csv"}
 EXPECTED_DIRS = [
     "experiment1_baseline_stability_hospital",
     "experiment2_weight_sensitivity_hospital",
@@ -34,11 +35,16 @@ def read_json(path):
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+def manifest_bytes(path):
+    data = path.read_bytes()
+    if path.suffix in NORMALIZED_HASH_EXTS:
+        data = data.replace(b"\r\n", b"\n")
+    return data
+
+
 def sha256_file(path):
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
+    digest.update(manifest_bytes(path))
     return digest.hexdigest()
 
 
@@ -62,7 +68,7 @@ def check_manifest():
         fail(f"Manifest file list mismatch; missing={missing[:5]} extra={extra[:5]}")
     for rel_path, entry in entries.items():
         path = REF / rel_path
-        if path.stat().st_size != int(entry["size_bytes"]):
+        if len(manifest_bytes(path)) != int(entry["size_bytes"]):
             fail(f"Manifest size mismatch: {rel_path}")
         if sha256_file(path) != entry["sha256"]:
             fail(f"Manifest hash mismatch: {rel_path}")
