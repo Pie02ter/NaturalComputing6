@@ -41,9 +41,3 @@ For a fast code check:
 ```bash
 python scripts/run_quick_pipeline.py
 ```
-
-To check the stored paper results:
-
-```bash
-python scripts/verify_reference_results.py
-```
