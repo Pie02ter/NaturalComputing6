@@ -26,7 +26,7 @@ These folders contain the CSV, JSON, figure, and per-run files needed to inspect
 ## Reproduce Outputs
 
 New runs write to `results/` by default.
-
+Run these commands to replicate the experiments found in the paper
 ```bash
 python scripts/run_experiment1_hospital.py
 python scripts/run_experiment2_hospital.py
