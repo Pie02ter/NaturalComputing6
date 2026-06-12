@@ -1,0 +1,99 @@
+﻿{
+  "n_seeds_per_scenario": 30,
+  "fixed_params": {
+    "source_summary": "reference_results/experiment1_baseline_stability_hospital/summary_per_run.csv",
+    "selected_run": 6,
+    "selected_ga_seed": 606,
+    "exp1_best_fitness": 52.279248192708664,
+    "active_params": [
+      3.743071817950133,
+      4.366113659694787,
+      0.9244952638912916
+    ],
+    "full_params": [
+      3.743071817950133,
+      4.366113659694787,
+      0.9244952638912916,
+      0.5,
+      1.0
+    ]
+  },
+  "scenarios": {
+    "balanced_50_50": {
+      "label": "Default (50% high / 50% low)",
+      "num_high": 20,
+      "num_low": 20,
+      "total_time": {
+        "mean": 39.593333333333334,
+        "std": 6.109118867179893,
+        "median": 39.35000000000001,
+        "iqr": 7.375,
+        "min": 29.5,
+        "max": 53.300000000000004
+      },
+      "fairness_gap_time": {
+        "mean": 11.119000000000002,
+        "std": 3.0321343342090987,
+        "median": 12.015,
+        "iqr": 4.821249999999999,
+        "min": 5.425000000000001,
+        "max": 16.855
+      },
+      "all_evacuated_rate": 1.0
+    },
+    "high_dominant_80_20": {
+      "label": "High-mobility dominant (80% / 20%)",
+      "num_high": 32,
+      "num_low": 8,
+      "total_time": {
+        "mean": 33.63,
+        "std": 12.916286164213847,
+        "median": 30.900000000000002,
+        "iqr": 4.550000000000001,
+        "min": 26.8,
+        "max": 100.0
+      },
+      "fairness_gap_time": {
+        "mean": 10.304805107526883,
+        "std": 2.3077259585790686,
+        "median": 10.618750000000002,
+        "iqr": 2.642187500000002,
+        "min": 5.121875,
+        "max": 14.796875
+      },
+      "all_evacuated_rate": 0.9666666666666667
+    },
+    "low_dominant_20_80": {
+      "label": "Low-mobility dominant / ICU-like (20% / 80%)",
+      "num_high": 8,
+      "num_low": 32,
+      "total_time": {
+        "mean": 47.41666666666666,
+        "std": 6.78787373814934,
+        "median": 46.650000000000006,
+        "iqr": 5.025000000000006,
+        "min": 37.9,
+        "max": 62.300000000000004
+      },
+      "fairness_gap_time": {
+        "mean": 11.767500000000002,
+        "std": 4.5522878596968255,
+        "median": 11.728125,
+        "iqr": 6.51328125,
+        "min": 1.50625,
+        "max": 21.44375
+      },
+      "all_evacuated_rate": 1.0
+    }
+  },
+  "kruskal_wallis_total_time": {
+    "H": 50.4769474969475,
+    "df": 2,
+    "p_value": 1.0941330061689389e-11
+  },
+  "kruskal_wallis_fairness_gap": {
+    "H": 2.8373137973138114,
+    "df": 2,
+    "p_value": 0.2420388814319363
+  }
+}

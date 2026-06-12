@@ -1,13 +1,24 @@
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
 .venv/
 venv/
 
-# Generated experiment outputs. Keep selected result folders manually if needed.
+# Generated experiment outputs. Reference outputs are tracked separately.
 results/*
-!results/README.md
 
+# OS, editor, and temporary files.
+.DS_Store
+__MACOSX/
+._*
+.vscode/
+*.tmp
+*.temp
+*.log
+
+# Local archives and helper snapshots.
 results.zip
+results (1).zip
+NaCo2025_rubric.pdf
 make_snapshot.py
-reports*

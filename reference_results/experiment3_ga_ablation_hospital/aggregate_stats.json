@@ -1,0 +1,69 @@
+{
+  "eval_budget": 600,
+  "configs": {
+    "A_default": {
+      "label": "A (Default)",
+      "n": 10,
+      "mean": 56.959354576880045,
+      "std": 12.006383167049705,
+      "median": 52.8991532074174,
+      "iqr": 1.3694780399744886,
+      "min": 52.279248192708664,
+      "max": 91.06569648869856
+    },
+    "B_exploration": {
+      "label": "B (Exploration)",
+      "n": 10,
+      "mean": 54.88139498294653,
+      "std": 1.5438325249676925,
+      "median": 54.327386618324866,
+      "iqr": 1.5581699439186707,
+      "min": 53.38174993564857,
+      "max": 58.57890942167194
+    },
+    "C_exploitation": {
+      "label": "C (Exploitation)",
+      "n": 10,
+      "mean": 65.80563444084393,
+      "std": 24.037733984897535,
+      "median": 55.736309559018636,
+      "iqr": 4.109768919786916,
+      "min": 53.62321125876227,
+      "max": 127.52921288600353
+    }
+  },
+  "kruskal_wallis_final_fitness": {
+    "H": 7.803870967741929,
+    "df": 2,
+    "p_value": 0.020202771442324786
+  },
+  "mann_whitney_posthoc_bonferroni": [
+    {
+      "comparison": "A_default_vs_B_exploration",
+      "left": "A_default",
+      "right": "B_exploration",
+      "U": 22.0,
+      "z": -2.1166010488516727,
+      "p_value_two_sided": 0.03429372103649264,
+      "p_value_bonferroni": 0.10288116310947792
+    },
+    {
+      "comparison": "A_default_vs_C_exploitation",
+      "left": "A_default",
+      "right": "C_exploitation",
+      "U": 18.0,
+      "z": -2.418972627259054,
+      "p_value_two_sided": 0.01556441138663378,
+      "p_value_bonferroni": 0.04669323415990134
+    },
+    {
+      "comparison": "B_exploration_vs_C_exploitation",
+      "left": "B_exploration",
+      "right": "C_exploitation",
+      "U": 34.0,
+      "z": -1.209486313629527,
+      "p_value_two_sided": 0.22647606604348636,
+      "p_value_bonferroni": 0.6794281981304591
+    }
+  ]
+}
